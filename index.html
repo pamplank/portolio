@@ -800,6 +800,13 @@
   }
   body.admin-mode .add-exp-btn { display: inline-flex; align-items: center; gap: 8px; }
   .add-exp-btn:hover { border-color: var(--red); background: rgba(232,0,29,0.07); }
+  /* placeholder text for empty timeline cells in admin mode */
+  body.admin-mode [data-editable][data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: rgba(138,138,158,0.45);
+    pointer-events: none;
+    font-style: italic;
+  }
   /* delete experience btn */
   .del-exp-btn {
     display: none; position: absolute; top: 0; right: 0;
@@ -917,7 +924,7 @@
 
 <!-- NAV -->
 <nav id="navbar">
-  <a href="#" class="nav-logo"><span contenteditable="false" data-editable style="display:inline;">Gerome</span><span>.</span></a>
+  <a href="#" class="nav-logo"><span contenteditable="false" data-editable data-persist-id="nav-logo" style="display:inline;">Gerome</span><span>.</span></a>
   <ul class="nav-links">
     <li><a href="#about">About</a></li>
     <li><a href="#work">Work</a></li>
@@ -935,13 +942,13 @@
   <div class="hero-bg"><canvas id="heroCanvas"></canvas></div>
   <div class="hero-grid"></div>
   <div class="hero-content">
-    <div class="hero-eyebrow" contenteditable="false" data-editable>Creative Designer &amp; Motion Artist</div>
+    <div class="hero-eyebrow" contenteditable="false" data-editable data-persist-id="hero-eyebrow">Creative Designer &amp; Motion Artist</div>
     <h1 class="hero-title">
-      <span class="line"><span contenteditable="false" data-editable>It's not about</span></span>
-      <span class="line"><span contenteditable="false" data-editable>how they do it,</span></span>
-      <span class="line"><span>it's how <span class="accent" contenteditable="false" data-editable>I do it.</span></span></span>
+      <span class="line"><span contenteditable="false" data-editable data-persist-id="hero-line1">It's not about</span></span>
+      <span class="line"><span contenteditable="false" data-editable data-persist-id="hero-line2">how they do it,</span></span>
+      <span class="line"><span>it's how <span class="accent" contenteditable="false" data-editable data-persist-id="hero-line3">I do it.</span></span></span>
     </h1>
-    <p class="hero-sub" contenteditable="false" data-editable>I translate ideas into visual experiences — from brand identities and broadcast layouts to motion graphics and animated campaigns.</p>
+    <p class="hero-sub" contenteditable="false" data-editable data-persist-id="hero-sub">I translate ideas into visual experiences — from brand identities and broadcast layouts to motion graphics and animated campaigns.</p>
     <div class="hero-actions">
       <a href="#work" class="btn-primary">View my work</a>
       <a href="#contact" class="btn-ghost">Get in touch ↗</a>
@@ -958,21 +965,21 @@
   <div class="about-grid">
     <div class="about-text reveal">
       <div class="section-label">About me</div>
-      <h2 class="section-title" contenteditable="false" data-editable>Design is how I<br>think out loud.</h2>
-      <p contenteditable="false" data-editable>I'm a <strong>multidisciplinary creative</strong> with a focus on visual design, broadcast layouts, motion graphics, and brand storytelling. I believe in work that's purposeful, unexpected, and impossible to scroll past.</p>
-      <p contenteditable="false" data-editable>From concept to final delivery, I bring together strategy and craft — whether it's a full brand identity, a broadcast package, or a 60-second animated spot that stops the feed.</p>
+      <h2 class="section-title" contenteditable="false" data-editable data-persist-id="about-title">Design is how I<br>think out loud.</h2>
+      <p contenteditable="false" data-editable data-persist-id="about-p1">I'm a <strong>multidisciplinary creative</strong> with a focus on visual design, broadcast layouts, motion graphics, and brand storytelling. I believe in work that's purposeful, unexpected, and impossible to scroll past.</p>
+      <p contenteditable="false" data-editable data-persist-id="about-p2">From concept to final delivery, I bring together strategy and craft — whether it's a full brand identity, a broadcast package, or a 60-second animated spot that stops the feed.</p>
       <div class="stats-row">
         <div class="stat-item">
-          <div class="stat-num"><span contenteditable="false" data-editable>6</span><span>+</span></div>
-          <div class="stat-label" contenteditable="false" data-editable>Years experience</div>
+          <div class="stat-num"><span contenteditable="false" data-editable data-persist-id="stat-years-num">6</span><span>+</span></div>
+          <div class="stat-label" contenteditable="false" data-editable data-persist-id="stat-years-label">Years experience</div>
         </div>
         <div class="stat-item">
-          <div class="stat-num"><span contenteditable="false" data-editable>80</span><span>+</span></div>
-          <div class="stat-label" contenteditable="false" data-editable>Projects delivered</div>
+          <div class="stat-num"><span contenteditable="false" data-editable data-persist-id="stat-proj-num">80</span><span>+</span></div>
+          <div class="stat-label" contenteditable="false" data-editable data-persist-id="stat-proj-label">Projects delivered</div>
         </div>
         <div class="stat-item">
-          <div class="stat-num"><span contenteditable="false" data-editable>24</span><span>+</span></div>
-          <div class="stat-label" contenteditable="false" data-editable>Clients worldwide</div>
+          <div class="stat-num"><span contenteditable="false" data-editable data-persist-id="stat-clients-num">24</span><span>+</span></div>
+          <div class="stat-label" contenteditable="false" data-editable data-persist-id="stat-clients-label">Clients worldwide</div>
         </div>
       </div>
     </div>
@@ -1007,7 +1014,7 @@
   <div class="work-header">
     <div>
       <div class="section-label">Selected work</div>
-      <h2 class="section-title" style="margin-bottom:0" contenteditable="false" data-editable>Designs &amp; animations.</h2>
+      <h2 class="section-title" style="margin-bottom:0" contenteditable="false" data-editable data-persist-id="work-title">Designs &amp; animations.</h2>
     </div>
     <div class="filter-tabs">
       <button class="filter-tab active" data-filter="all">All</button>
@@ -1127,7 +1134,7 @@
 <section id="film" style="position:relative;">
   <div class="section-admin-toolbar"><button class="toolbar-btn" onclick="openAddFilm()">+ Add Film</button></div>
   <div class="section-label reveal">Film</div>
-  <h2 class="section-title reveal" contenteditable="false" data-editable>Documentaries,<br>short films &amp; awards.</h2>
+  <h2 class="section-title reveal" contenteditable="false" data-editable data-persist-id="film-title">Documentaries,<br>short films &amp; awards.</h2>
   <div class="film-tabs">
     <button class="film-tab active" data-ffilter="all">All</button>
     <button class="film-tab" data-ffilter="documentary">Documentary</button>
@@ -1184,7 +1191,7 @@
 <section id="photography" style="position:relative;">
   <div class="section-admin-toolbar"><button class="toolbar-btn" onclick="openAddPhoto()">+ Add Photo</button></div>
   <div class="section-label reveal">Photography</div>
-  <h2 class="section-title reveal" contenteditable="false" data-editable>Frames I&#39;ve<br>chosen to keep.</h2>
+  <h2 class="section-title reveal" contenteditable="false" data-editable data-persist-id="photo-title">Frames I&#39;ve<br>chosen to keep.</h2>
   <div class="photo-grid" id="photoGrid">
     <div class="photo-item reveal" data-caption="Street / Manila, 2023">
       <button class="admin-edit-btn" onclick="editPhoto(this.closest('.photo-item'),event)">&#x270E; Edit</button>
@@ -1216,7 +1223,7 @@
 <!-- EXPERIENCE -->
 <section id="experience">
   <div class="section-label reveal">Experience</div>
-  <h2 class="section-title reveal" contenteditable="false" data-editable>Where I've built<br>my craft.</h2>
+  <h2 class="section-title reveal" contenteditable="false" data-editable data-persist-id="exp-title">Where I've built<br>my craft.</h2>
   <div class="timeline">
     <div class="timeline-item">
       <button class="del-exp-btn" onclick="this.closest('.timeline-item').remove()" title="Delete entry">&#x2715; Delete</button>
@@ -1257,7 +1264,7 @@
 <section id="clients">
   <div class="clients-header reveal">
     <div class="section-label">Companies I've worked with</div>
-    <h2 class="section-title" contenteditable="false" data-editable>Trusted by brands<br>that move fast.</h2>
+    <h2 class="section-title" contenteditable="false" data-editable data-persist-id="clients-title">Trusted by brands<br>that move fast.</h2>
   </div>
   <div class="clients-track-wrap">
     <div class="clients-track" id="clientsTrack"></div>
@@ -1275,8 +1282,8 @@
 <section id="contact">
   <div class="contact-inner">
     <div class="section-label reveal">Contact</div>
-    <h2 class="section-title reveal" contenteditable="false" data-editable>Let's make something<br>worth remembering.</h2>
-    <p class="contact-tagline reveal" contenteditable="false" data-editable>Got a project, a brief, or just an idea? I'm always open to the right collaboration. Fill in the form or reach out directly.</p>
+    <h2 class="section-title reveal" contenteditable="false" data-editable data-persist-id="contact-title">Let's make something<br>worth remembering.</h2>
+    <p class="contact-tagline reveal" contenteditable="false" data-editable data-persist-id="contact-tagline">Got a project, a brief, or just an idea? I'm always open to the right collaboration. Fill in the form or reach out directly.</p>
     <form class="contact-form reveal" id="contactForm" onsubmit="handleSubmit(event)">
       <div class="form-row">
         <div class="form-field">
@@ -1330,8 +1337,8 @@
 
 <!-- FOOTER -->
 <footer>
-  <p contenteditable="false" data-editable>© 2024 Gerome Viñas — Creative Designer</p>
-  <p contenteditable="false" data-editable>Built with care · Manila, Philippines</p>
+  <p contenteditable="false" data-editable data-persist-id="footer-copy">© 2024 Gerome Viñas — Creative Designer</p>
+  <p contenteditable="false" data-editable data-persist-id="footer-sub">Built with care · Manila, Philippines</p>
 </footer>
 
 <!-- MODAL -->
@@ -1849,12 +1856,22 @@ function addExperience() {
   const timeline = document.querySelector('.timeline');
   const item = document.createElement('div');
   item.className = 'timeline-item visible';
+  // FIX: Use empty strings as content — placeholder text like "Your Role" was
+  // being accidentally saved to Supabase before the user filled it in,
+  // then restored on reload and appeared in unrelated sections.
   item.innerHTML =
     '<button class="del-exp-btn" onclick="this.closest(\'.timeline-item\').remove()">&#x2715; Delete</button>'
-    + '<div class="timeline-date" contenteditable="true" data-editable spellcheck="false">Year — Year</div>'
-    + '<div class="timeline-role" contenteditable="true" data-editable spellcheck="false">Your Role</div>'
-    + '<div class="timeline-company" contenteditable="true" data-editable spellcheck="false">Company Name</div>'
-    + '<div class="timeline-desc" contenteditable="true" data-editable spellcheck="false">Describe your work here...</div>';
+    + '<div class="timeline-date" contenteditable="false" data-editable spellcheck="false" data-placeholder="Year — Year"></div>'
+    + '<div class="timeline-role" contenteditable="false" data-editable spellcheck="false" data-placeholder="Your Role"></div>'
+    + '<div class="timeline-company" contenteditable="false" data-editable spellcheck="false" data-placeholder="Company Name"></div>'
+    + '<div class="timeline-desc" contenteditable="false" data-editable spellcheck="false" data-placeholder="Describe your work here..."></div>';
+  // If already in admin mode, immediately make the new item editable
+  if (isAdmin) {
+    item.querySelectorAll('[data-editable]').forEach(el => {
+      el.contentEditable = 'true';
+      el.setAttribute('spellcheck', 'false');
+    });
+  }
   timeline.appendChild(item);
   item.querySelector('.timeline-date').focus();
 }
@@ -2071,10 +2088,10 @@ function buildImageUploadWidget(container, hints, existingUrl, onUploaded) {
 function collectPageData() {
   const data = {};
 
-  // All inline-editable text nodes
-  data.editables = [];
-  document.querySelectorAll('[data-editable]').forEach((el, i) => {
-    data.editables.push({ idx: i, html: el.innerHTML });
+  // Static text nodes — keyed by stable data-persist-id (NOT fragile positional index)
+  data.editables = {};
+  document.querySelectorAll('[data-persist-id]').forEach(el => {
+    data.editables[el.dataset.persistId] = el.innerHTML;
   });
 
   // Skills tags (strip the ✕ button text)
@@ -2084,13 +2101,14 @@ function collectPageData() {
     return clone.textContent.trim();
   }).filter(Boolean);
 
-  // Experience timeline
+  // Experience timeline — collected separately, NOT via data-editable index
+  // IMPORTANT: skip entries that are completely empty (e.g. newly added, not yet filled in)
   data.experience = Array.from(document.querySelectorAll('.timeline-item')).map(item => ({
     date:    item.querySelector('.timeline-date')?.innerHTML    || '',
     role:    item.querySelector('.timeline-role')?.innerHTML    || '',
     company: item.querySelector('.timeline-company')?.innerHTML || '',
     desc:    item.querySelector('.timeline-desc')?.innerHTML    || ''
-  }));
+  })).filter(exp => exp.role.trim() || exp.company.trim() || exp.date.trim());
 
   // Clients marquee — only take the first half (track is doubled for loop)
   const allLogos = document.querySelectorAll('#clientsTrack .client-logo');
@@ -2127,6 +2145,16 @@ function collectPageData() {
     caption:  item.dataset.caption || '',
     imageUrl: item.querySelector('img')?.src || '',
     bgStyle:  item.querySelector('.photo-inner')?.getAttribute('style') || ''
+  }));
+
+  // Reel items
+  data.reels = Array.from(document.querySelectorAll('.reel-item')).map(item => ({
+    title:     item.dataset.title    || '',
+    desc:      item.dataset.desc     || '',
+    videoUrl:  item.dataset.videoUrl || '',
+    thumbUrl:  item.querySelector('img')?.src || '',
+    duration:  item.dataset.duration  || '',
+    category:  item.dataset.category  || ''
   }));
 
   return data;
@@ -2200,11 +2228,11 @@ async function loadFromSupabase() {
 
 // ── APPLY: write saved data back onto the live DOM ────────────────────────
 function applyPageData(saved) {
-  // Editable text nodes
-  if (saved.editables && saved.editables.length) {
-    document.querySelectorAll('[data-editable]').forEach((el, i) => {
-      const entry = saved.editables.find(e => e.idx === i);
-      if (entry && entry.html !== undefined) el.innerHTML = entry.html;
+  // Static text — matched by stable data-persist-id, completely immune to dynamic elements
+  if (saved.editables && typeof saved.editables === 'object') {
+    document.querySelectorAll('[data-persist-id]').forEach(el => {
+      const saved_html = saved.editables[el.dataset.persistId];
+      if (saved_html !== undefined) el.innerHTML = saved_html;
     });
   }
 
@@ -2238,23 +2266,29 @@ function applyPageData(saved) {
           + '<div class="timeline-role" contenteditable="false" data-editable>'    + (exp.role    || '') + '</div>'
           + '<div class="timeline-company" contenteditable="false" data-editable>' + (exp.company || '') + '</div>'
           + '<div class="timeline-desc" contenteditable="false" data-editable>'    + (exp.desc    || '') + '</div>';
+        // If admin mode is already active, enable editing on restored items
+        if (isAdmin) {
+          item.querySelectorAll('[data-editable]').forEach(el => {
+            el.contentEditable = 'true';
+            el.setAttribute('spellcheck', 'false');
+          });
+        }
         timeline.appendChild(item);
         observer.observe(item);
       });
     }
   }
 
-  // Clients marquee — rebuild with saved list
+  // Clients marquee
   if (saved.clients && saved.clients.length) {
     clientsList = saved.clients;
     buildMarquee(clientsList);
   }
 
-  // Portfolio cards — full rebuild from saved data so added cards survive reload
+  // Portfolio cards — full rebuild
   if (saved.cards && saved.cards.length) {
     const grid = document.getElementById('portfolioGrid');
     const addBtn = grid ? grid.querySelector('.add-card-btn') : null;
-    // Remove all existing cards (keep the add button)
     if (grid) grid.querySelectorAll('.portfolio-card').forEach(c => c.remove());
     const grads = ['grad-1','grad-2','grad-3','grad-4','grad-5','grad-6'];
     const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
@@ -2288,7 +2322,7 @@ function applyPageData(saved) {
     });
   }
 
-  // Film cards — full rebuild from saved data so added films survive reload
+  // Film cards — full rebuild
   if (saved.films && saved.films.length) {
     const filmGrid = document.getElementById('filmGrid');
     const addFilmBtn = filmGrid ? filmGrid.querySelector('.add-film-btn') : null;
@@ -2314,7 +2348,6 @@ function applyPageData(saved) {
       if (filmGrid) filmGrid.insertBefore(card, addFilmBtn || null);
       observer.observe(card);
     });
-    // Re-bind film tab filter to include newly built cards
     document.querySelectorAll('.film-tab').forEach(tab => {
       tab.addEventListener('click', () => {
         document.querySelectorAll('.film-tab').forEach(t => t.classList.remove('active'));
@@ -2330,7 +2363,7 @@ function applyPageData(saved) {
     });
   }
 
-  // Photo items — full rebuild from saved data so added photos survive reload
+  // Photo items — full rebuild
   if (saved.photos && saved.photos.length) {
     const photoGrid = document.getElementById('photoGrid');
     const addPhotoBtn = photoGrid ? photoGrid.querySelector('.add-photo-btn') : null;
@@ -2345,9 +2378,21 @@ function applyPageData(saved) {
       item.className = 'photo-item reveal';
       item.dataset.caption = p.caption || '';
       item.innerHTML = '<button class="admin-edit-btn" onclick="editPhoto(this.closest(\'.photo-item\'),event)">&#x270E; Edit</button>'
-        + '<div class="photo-inner" style="min-height:200px;background:' + (p.imageUrl ? 'none' : bg) + ';">' + imgContent + '</div>'
+        + '<div class="photo-inner" style="min-height:260px;background:' + (p.imageUrl ? 'none' : bg) + ';">' + imgContent + '</div>'
         + '<div class="photo-caption">' + (p.caption||'') + '</div>';
       if (photoGrid) photoGrid.insertBefore(item, addPhotoBtn || null);
+      observer.observe(item);
+    });
+  }
+
+  // Reel items — full rebuild
+  if (saved.reels && saved.reels.length) {
+    const reelGrid = document.getElementById('reelGrid');
+    const addReelBtn = reelGrid ? reelGrid.querySelector('.add-reel-btn') : null;
+    if (reelGrid) reelGrid.querySelectorAll('.reel-item').forEach(r => r.remove());
+    saved.reels.forEach(r => {
+      const item = buildReelCard(r);
+      if (reelGrid) reelGrid.insertBefore(item, addReelBtn || null);
       observer.observe(item);
     });
   }
@@ -2361,9 +2406,31 @@ function setupAutoSave() {
   if (_autoSaveSetup) return;
   _autoSaveSetup = true;
   document.addEventListener('input', e => {
-    if (!e.target.isContentEditable) return;
+    // FIX: Only auto-save when editing a root-level tracked element (has data-persist-id
+    // OR is a direct timeline child with data-editable on the .timeline-item).
+    // This prevents admin panel <input> fields and nested children from triggering saves.
+    const t = e.target;
+    if (!t.isContentEditable) return;
+    // Must be a direct contenteditable node we own — not a child of one
+    if (t.contentEditable !== 'true') return;
+    // Must either have a data-persist-id (section titles, etc.) OR be a direct
+    // timeline cell (.timeline-date/.timeline-role/.timeline-company/.timeline-desc)
+    const isTracked = t.dataset.persistId ||
+      t.classList.contains('timeline-date') ||
+      t.classList.contains('timeline-role') ||
+      t.classList.contains('timeline-company') ||
+      t.classList.contains('timeline-desc');
+    if (!isTracked) return;
     clearTimeout(window._saveTimer);
     window._saveTimer = setTimeout(async () => {
+      // Don't auto-save if any timeline items are totally blank (user still filling in a new entry)
+      const hasEmptyEntry = Array.from(document.querySelectorAll('.timeline-item')).some(item => {
+        const role    = item.querySelector('.timeline-role')?.textContent.trim()    || '';
+        const company = item.querySelector('.timeline-company')?.textContent.trim() || '';
+        const date    = item.querySelector('.timeline-date')?.textContent.trim()    || '';
+        return !role && !company && !date;
+      });
+      if (hasEmptyEntry) return; // wait until user fills something in
       const ok = await persistAll();
       if (ok) showToastMsg('Auto-saved ✦');
     }, 1200);
