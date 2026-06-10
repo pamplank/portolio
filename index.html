@@ -1,0 +1,2105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerome Viñas — Creative Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --navy: #0A0A14;
+    --navy-mid: #10101E;
+    --navy-light: #161628;
+    --off-white: #F0EDE6;
+    --muted: #8A8A9E;
+    --red: #E8001D;
+    --red-light: #FF3347;
+    --amber: #F59E0B;
+    --slate: #334155;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--navy);
+    color: var(--off-white);
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CUSTOM CURSOR */
+  #cursor {
+    position: fixed;
+    width: 12px; height: 12px;
+    background: var(--red);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: width 0.2s, height 0.2s, background 0.2s;
+    mix-blend-mode: screen;
+  }
+  #cursor-glow {
+    position: fixed;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(232,0,29,0.07) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.12s ease;
+  }
+  body:hover #cursor { opacity: 1; }
+  a:hover { cursor: none; }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 24px 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(to bottom, rgba(10,10,20,0.95), transparent);
+    transition: backdrop-filter 0.3s, background 0.3s;
+  }
+  nav.scrolled {
+    backdrop-filter: blur(20px);
+    background: rgba(10,10,20,0.9);
+    border-bottom: 1px solid rgba(232,0,29,0.1);
+  }
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    letter-spacing: -0.02em;
+    color: var(--off-white);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--red); }
+  .nav-links {
+    display: flex;
+    gap: 40px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    cursor: none;
+  }
+  .nav-links a:hover { color: var(--off-white); }
+  .nav-cta {
+    padding: 10px 24px;
+    border: 1px solid var(--red);
+    border-radius: 100px;
+    font-size: 0.85rem;
+    color: var(--red);
+    text-decoration: none;
+    letter-spacing: 0.06em;
+    transition: background 0.2s, color 0.2s;
+    cursor: none;
+  }
+  .nav-cta:hover { background: var(--red); color: var(--off-white); }
+
+  /* HERO */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding: 120px 60px 80px;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .hero-bg canvas { width: 100%; height: 100%; }
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(232,0,29,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(232,0,29,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse at 60% 50%, black 20%, transparent 70%);
+  }
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 900px;
+  }
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--red-light);
+    margin-bottom: 32px;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 32px; height: 1px;
+    background: var(--red-light);
+  }
+  .hero-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(3.5rem, 8vw, 7rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin-bottom: 32px;
+  }
+  .hero-title .line { display: block; overflow: hidden; }
+  .hero-title .line span { display: block; transform: translateY(110%); animation: slideUp 0.9s cubic-bezier(0.16,1,0.3,1) forwards; }
+  .hero-title .line:nth-child(2) span { animation-delay: 0.1s; }
+  .hero-title .line:nth-child(3) span { animation-delay: 0.2s; }
+  .hero-title .line:nth-child(4) span { animation-delay: 0.3s; }
+  .hero-title .accent { color: var(--red); }
+  @keyframes slideUp { to { transform: translateY(0); } }
+  .hero-sub {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: var(--muted);
+    max-width: 480px;
+    margin-bottom: 48px;
+    opacity: 0;
+    animation: fadeIn 0.8s 0.6s forwards;
+  }
+  @keyframes fadeIn { to { opacity: 1; } }
+  .hero-actions {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    opacity: 0;
+    animation: fadeIn 0.8s 0.8s forwards;
+  }
+  .btn-primary {
+    padding: 16px 36px;
+    background: var(--red);
+    border-radius: 100px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: white;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: none;
+    display: inline-block;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(232,0,29,0.4); }
+  .btn-ghost {
+    padding: 16px 36px;
+    border-radius: 100px;
+    font-size: 0.9rem;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    cursor: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-ghost:hover { color: var(--off-white); }
+  .hero-scroll-hint {
+    position: absolute;
+    bottom: 40px; left: 60px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    z-index: 2;
+    opacity: 0;
+    animation: fadeIn 1s 1.2s forwards;
+  }
+  .scroll-line {
+    width: 40px; height: 1px;
+    background: var(--muted);
+    position: relative;
+    overflow: hidden;
+  }
+  .scroll-line::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: var(--red);
+    animation: scanline 2s 1.5s infinite;
+  }
+  @keyframes scanline { to { left: 100%; } }
+
+  /* SECTION BASE */
+  section { padding: 120px 60px; position: relative; }
+  .section-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::before {
+    content: '';
+    display: block;
+    width: 24px; height: 1px;
+    background: var(--red);
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 60px;
+  }
+
+  /* ABOUT */
+  #about { background: var(--navy-mid); }
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .about-text p {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+  .about-text p strong { color: var(--off-white); font-weight: 500; }
+  .stats-row {
+    display: flex;
+    gap: 40px;
+    margin-top: 48px;
+    padding-top: 40px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: var(--off-white);
+    letter-spacing: -0.03em;
+  }
+  .stat-num span { color: var(--red); }
+  .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+  .skills-list { display: flex; flex-wrap: wrap; gap: 10px; }
+  .skill-tag {
+    padding: 8px 18px;
+    border: 1px solid rgba(232,0,29,0.25);
+    border-radius: 100px;
+    font-size: 0.82rem;
+    color: var(--red-light);
+    background: rgba(232,0,29,0.06);
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .skill-tag:hover { border-color: var(--red); background: rgba(232,0,29,0.12); }
+
+  /* WORK */
+  #work { overflow: hidden; }
+  .work-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 48px;
+  }
+  .filter-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+  .filter-tab {
+    padding: 8px 20px;
+    border-radius: 100px;
+    font-size: 0.82rem;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--muted);
+    background: transparent;
+    cursor: none;
+    transition: all 0.2s;
+  }
+  .filter-tab.active, .filter-tab:hover {
+    border-color: var(--red);
+    color: var(--off-white);
+    background: rgba(232,0,29,0.1);
+  }
+  .portfolio-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .portfolio-card {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    aspect-ratio: 4/3;
+    background: var(--navy-light);
+    cursor: none;
+    transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+  }
+  .portfolio-card:hover { transform: scale(1.02) translateY(-4px); }
+  .portfolio-card.featured { grid-column: span 2; aspect-ratio: 16/9; }
+  .card-visual {
+    width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .card-visual::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(10,10,20,0.95) 0%, rgba(10,10,20,0.2) 50%, transparent 100%);
+  }
+  .grad-1 { background: linear-gradient(135deg, #1a0309, #3b0714, #1e0b1b); }
+  .grad-2 { background: linear-gradient(135deg, #1a0a0a, #3d1010, #2a0808); }
+  .grad-3 { background: linear-gradient(135deg, #1a0000, #400010, #1e0a0a); }
+  .grad-4 { background: linear-gradient(135deg, #1a0a12, #35081a, #1a0510); }
+  .grad-5 { background: linear-gradient(135deg, #0f0a1a, #200a2a, #180a20); }
+  .grad-6 { background: linear-gradient(135deg, #0a0a1a, #1a0a30, #100a20); }
+  .card-overlay {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 28px;
+    z-index: 2;
+    transform: translateY(8px);
+    transition: transform 0.3s;
+  }
+  .portfolio-card:hover .card-overlay { transform: translateY(0); }
+  .card-category {
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--red-light);
+    margin-bottom: 8px;
+  }
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--off-white);
+  }
+  .card-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: var(--red-light);
+    text-decoration: none;
+    opacity: 0;
+    transition: opacity 0.3s 0.1s;
+    cursor: none;
+  }
+  .portfolio-card:hover .card-link { opacity: 1; }
+
+  /* EXPERIENCE */
+  #experience { background: var(--navy-mid); }
+  .timeline { position: relative; padding-left: 40px; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 8px; bottom: 8px;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--red), rgba(232,0,29,0.1));
+  }
+  .timeline-item {
+    position: relative;
+    margin-bottom: 56px;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: opacity 0.6s, transform 0.6s;
+  }
+  .timeline-item.visible { opacity: 1; transform: translateX(0); }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -44px; top: 8px;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--red);
+    box-shadow: 0 0 12px var(--red);
+  }
+  .timeline-date { font-size: 0.78rem; letter-spacing: 0.08em; color: var(--red-light); margin-bottom: 10px; }
+  .timeline-role { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 700; color: var(--off-white); margin-bottom: 4px; }
+  .timeline-company { font-size: 0.9rem; color: var(--amber); margin-bottom: 14px; }
+  .timeline-desc { font-size: 0.9rem; line-height: 1.7; color: var(--muted); max-width: 600px; }
+
+  /* CLIENTS */
+  #clients { padding: 80px 60px; }
+  .clients-header { text-align: center; margin-bottom: 60px; }
+  .clients-header .section-label { justify-content: center; }
+  .clients-header .section-label::before { display: none; }
+  .clients-header .section-title { margin-bottom: 0; }
+  .clients-track-wrap {
+    overflow: hidden;
+    mask-image: linear-gradient(90deg, transparent 0%, black 10%, black 90%, transparent 100%);
+  }
+  .clients-track {
+    display: flex;
+    animation: marquee 22s linear infinite;
+    width: max-content;
+  }
+  .clients-track:hover { animation-play-state: paused; }
+  @keyframes marquee { to { transform: translateX(-50%); } }
+  .client-logo {
+    padding: 28px 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    margin: 0 12px;
+    white-space: nowrap;
+    transition: border-color 0.2s, background 0.2s;
+    cursor: none;
+    flex-shrink: 0;
+  }
+  .client-logo:hover { border-color: rgba(232,0,29,0.3); background: rgba(232,0,29,0.05); }
+  .client-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    transition: color 0.2s;
+  }
+  .client-logo:hover .client-name { color: var(--off-white); }
+
+  /* CONTACT */
+  #contact { background: var(--navy-light); text-align: center; }
+  .contact-inner { max-width: 640px; margin: 0 auto; }
+  .contact-inner .section-label { justify-content: center; }
+  .contact-inner .section-label::before { display: none; }
+  .contact-tagline { font-size: 1.05rem; line-height: 1.7; color: var(--muted); margin-bottom: 56px; }
+  .contact-form { display: flex; flex-direction: column; gap: 16px; text-align: left; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-field { display: flex; flex-direction: column; gap: 8px; }
+  .form-field label { font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .form-field input, .form-field textarea, .form-field select {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 14px 18px;
+    color: var(--off-white);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 300;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    cursor: none;
+    width: 100%;
+  }
+  .form-field select { appearance: none; }
+  .form-field input:focus, .form-field textarea:focus, .form-field select:focus {
+    border-color: var(--red);
+    background: rgba(232,0,29,0.05);
+  }
+  .form-field textarea { resize: none; height: 140px; }
+  .form-submit {
+    padding: 18px;
+    background: var(--red);
+    border: none;
+    border-radius: 100px;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 0.04em;
+    cursor: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-top: 8px;
+  }
+  .form-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(232,0,29,0.5); }
+  .contact-links { display: flex; justify-content: center; gap: 24px; margin-top: 48px; flex-wrap: wrap; }
+  .contact-link {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.85rem; color: var(--muted);
+    text-decoration: none; transition: color 0.2s; cursor: none;
+  }
+  .contact-link:hover { color: var(--red-light); }
+  .contact-link svg { width: 16px; height: 16px; }
+
+  /* FOOTER */
+  footer {
+    padding: 32px 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+  footer p { font-size: 0.8rem; color: var(--muted); }
+  footer a { color: var(--red-light); text-decoration: none; }
+
+  /* TOAST */
+  #toast {
+    position: fixed;
+    bottom: 40px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--red);
+    color: white;
+    padding: 14px 28px;
+    border-radius: 100px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* REVEAL */
+  .reveal {
+    opacity: 0; transform: translateY(30px);
+    transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+
+  /* MODAL */
+  #modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 500;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+    backdrop-filter: blur(8px);
+  }
+  #modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal-card {
+    background: var(--navy-light);
+    border: 1px solid rgba(232,0,29,0.2);
+    border-radius: 20px;
+    padding: 48px;
+    max-width: 580px; width: 90%;
+    position: relative;
+    transform: scale(0.9);
+    transition: transform 0.3s;
+  }
+  #modal-overlay.open .modal-card { transform: scale(1); }
+  .modal-close {
+    position: absolute; top: 20px; right: 20px;
+    background: rgba(255,255,255,0.06);
+    border: none; border-radius: 50%;
+    width: 36px; height: 36px;
+    color: var(--muted); font-size: 1.1rem;
+    cursor: none; transition: background 0.2s, color 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal-close:hover { background: var(--red); color: white; }
+  .modal-category { font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--red-light); margin-bottom: 12px; }
+  .modal-title { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 700; margin-bottom: 16px; color: var(--off-white); }
+  .modal-desc { font-size: 0.95rem; line-height: 1.7; color: var(--muted); margin-bottom: 28px; }
+  .modal-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+  .modal-tag { padding: 6px 14px; background: rgba(232,0,29,0.1); border: 1px solid rgba(232,0,29,0.2); border-radius: 100px; font-size: 0.78rem; color: var(--red-light); }
+  .modal-visual { width: 100%; height: 180px; border-radius: 12px; margin-bottom: 24px; }
+
+  /* MOBILE */
+  @media (max-width: 768px) {
+    nav { padding: 20px 24px; }
+    .nav-links { display: none; }
+    section { padding: 80px 24px; }
+    #hero { padding: 100px 24px 60px; }
+    .hero-scroll-hint { left: 24px; }
+    .about-grid { grid-template-columns: 1fr; gap: 40px; }
+    .portfolio-grid { grid-template-columns: 1fr; }
+    .portfolio-card.featured { grid-column: span 1; aspect-ratio: 4/3; }
+    .form-row { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 12px; text-align: center; }
+    .stats-row { gap: 24px; }
+    .work-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+    #clients { padding: 80px 24px; }
+  }
+
+  /* ADMIN BADGE */
+  #admin-badge { display:none; position:fixed; top:80px; right:20px; z-index:200; background:rgba(232,0,29,0.15); border:1px solid var(--red); border-radius:100px; padding:6px 16px; font-size:0.75rem; letter-spacing:0.1em; color:var(--red-light); text-transform:uppercase; pointer-events:none; }
+  body.admin-mode #admin-badge { display:block; }
+  #admin-key-hint { position:fixed; bottom:20px; right:20px; font-size:0.68rem; color:rgba(255,255,255,0.12); letter-spacing:0.08em; pointer-events:none; z-index:10; }
+  .section-admin-toolbar { display:none; position:absolute; top:20px; right:60px; z-index:10; background:rgba(10,10,20,0.9); border:1px solid rgba(232,0,29,0.3); border-radius:12px; padding:8px 12px; gap:8px; align-items:center; }
+  body.admin-mode .section-admin-toolbar { display:flex; }
+  .toolbar-btn { background:transparent; border:none; color:var(--muted); font-size:0.75rem; cursor:pointer; padding:4px 8px; border-radius:6px; transition:all 0.2s; letter-spacing:0.05em; display:flex; align-items:center; gap:4px; }
+  .toolbar-btn:hover { color:var(--off-white); background:rgba(232,0,29,0.15); }
+  .admin-edit-btn { display:none; position:absolute; top:12px; right:12px; z-index:10; background:rgba(232,0,29,0.9); border:none; border-radius:8px; color:white; font-size:0.72rem; padding:6px 12px; cursor:pointer; letter-spacing:0.05em; font-family:"Inter",sans-serif; }
+  body.admin-mode .admin-edit-btn { display:block; }
+  .add-card-btn { display:none; border-radius:16px; aspect-ratio:4/3; background:rgba(232,0,29,0.05); border:2px dashed rgba(232,0,29,0.3); align-items:center; justify-content:center; flex-direction:column; gap:12px; cursor:pointer; transition:all 0.2s; }
+  body.admin-mode .add-card-btn { display:flex; }
+  .add-card-btn:hover { background:rgba(232,0,29,0.1); border-color:var(--red); }
+  .add-card-btn span,.add-film-btn span,.add-photo-btn span { font-family:"Syne",sans-serif; font-size:0.85rem; color:var(--red-light); letter-spacing:0.05em; }
+  /* FILM */
+  #film { background:var(--navy); }
+  .film-tabs { display:flex; gap:8px; margin-bottom:48px; flex-wrap:wrap; }
+  .film-tab { padding:8px 20px; border-radius:100px; font-size:0.82rem; border:1px solid rgba(255,255,255,0.1); color:var(--muted); background:transparent; cursor:none; transition:all 0.2s; }
+  .film-tab.active,.film-tab:hover { border-color:var(--red); color:var(--off-white); background:rgba(232,0,29,0.1); }
+  .film-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+  .film-card { background:var(--navy-light); border:1px solid rgba(255,255,255,0.05); border-radius:16px; overflow:hidden; transition:border-color 0.3s,transform 0.3s; cursor:none; position:relative; }
+  .film-card:hover { border-color:rgba(232,0,29,0.3); transform:translateY(-4px); }
+  .film-poster { aspect-ratio:2/3; background:var(--navy-mid); display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
+  .film-poster img { width:100%; height:100%; object-fit:cover; }
+  .film-info { padding:20px; }
+  .film-type-badge { display:inline-block; padding:4px 12px; border-radius:100px; font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:12px; }
+  .badge-documentary { background:rgba(245,158,11,0.15); color:var(--amber); border:1px solid rgba(245,158,11,0.3); }
+  .badge-shortfilm { background:rgba(232,0,29,0.12); color:var(--red-light); border:1px solid rgba(232,0,29,0.25); }
+  .film-title { font-family:"Syne",sans-serif; font-size:1.1rem; font-weight:700; color:var(--off-white); margin-bottom:6px; }
+  .film-role { font-size:0.82rem; color:var(--muted); margin-bottom:12px; }
+  .film-award { display:flex; align-items:center; gap:6px; font-size:0.78rem; color:#D4A843; margin-bottom:4px; }
+  .film-year { font-size:0.75rem; color:var(--muted); margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.06); }
+  .add-film-btn { display:none; border-radius:16px; background:rgba(232,0,29,0.05); border:2px dashed rgba(232,0,29,0.3); align-items:center; justify-content:center; flex-direction:column; gap:10px; cursor:pointer; transition:all 0.2s; min-height:300px; }
+  body.admin-mode .add-film-btn { display:flex; }
+  .add-film-btn:hover { background:rgba(232,0,29,0.1); border-color:var(--red); }
+  /* PHOTOGRAPHY */
+  #photography { background:var(--navy-mid); }
+  .photo-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; align-items:start; }
+  .photo-item { position:relative; border-radius:12px; overflow:hidden; background:var(--navy-light); cursor:none; transition:transform 0.4s cubic-bezier(0.16,1,0.3,1); }
+  .photo-item:nth-child(4n+1) { grid-row:span 2; }
+  .photo-item:hover { transform:scale(1.02); z-index:2; }
+  .photo-inner { width:100%; height:100%; min-height:200px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
+  .photo-inner img { width:100%; height:100%; object-fit:cover; }
+  .photo-inner::after { content:""; position:absolute; inset:0; background:linear-gradient(to top,rgba(10,10,20,0.85) 0%,transparent 60%); opacity:0; transition:opacity 0.3s; }
+  .photo-item:hover .photo-inner::after { opacity:1; }
+  .photo-caption { position:absolute; bottom:0; left:0; right:0; padding:14px; z-index:2; transform:translateY(6px); opacity:0; transition:all 0.3s; font-size:0.8rem; color:var(--off-white); }
+  .photo-item:hover .photo-caption { transform:translateY(0); opacity:1; }
+  .add-photo-btn { display:none; border-radius:12px; background:rgba(232,0,29,0.05); border:2px dashed rgba(232,0,29,0.3); align-items:center; justify-content:center; flex-direction:column; gap:10px; cursor:pointer; transition:all 0.2s; min-height:200px; }
+  body.admin-mode .add-photo-btn { display:flex; }
+  .add-photo-btn:hover { background:rgba(232,0,29,0.1); border-color:var(--red); }
+  /* ADMIN PANEL */
+  #admin-panel { display:none; position:fixed; inset:0; z-index:600; background:rgba(0,0,0,0.9); backdrop-filter:blur(12px); align-items:center; justify-content:center; }
+  #admin-panel.open { display:flex; }
+  .admin-panel-card { background:var(--navy-light); border:1px solid rgba(232,0,29,0.3); border-radius:20px; padding:40px; width:90%; max-width:540px; max-height:90vh; overflow-y:auto; position:relative; }
+  .admin-panel-title { font-family:"Syne",sans-serif; font-size:1.3rem; font-weight:700; color:var(--off-white); margin-bottom:28px; display:flex; align-items:center; gap:10px; }
+  .admin-close { position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.06); border:none; border-radius:50%; width:36px; height:36px; color:var(--muted); font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s; }
+  .admin-close:hover { background:var(--red); color:white; }
+  .admin-field { display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
+  .admin-field label { font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); }
+  .admin-field input,.admin-field textarea,.admin-field select { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:12px 16px; color:var(--off-white); font-family:"Inter",sans-serif; font-size:0.9rem; outline:none; width:100%; transition:border-color 0.2s; }
+  .admin-field input:focus,.admin-field textarea:focus,.admin-field select:focus { border-color:var(--red); }
+  .admin-field textarea { resize:vertical; min-height:80px; }
+  .admin-field select option { background:var(--navy-light); }
+  .admin-actions { display:flex; gap:12px; margin-top:8px; }
+  .btn-save { flex:1; padding:14px; background:var(--red); border:none; border-radius:100px; font-family:"Syne",sans-serif; font-size:0.9rem; font-weight:700; color:white; cursor:pointer; transition:transform 0.2s,box-shadow 0.2s; }
+  .btn-save:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(232,0,29,0.4); }
+  .btn-delete { padding:14px 24px; background:transparent; border:1px solid rgba(255,50,50,0.3); border-radius:100px; font-family:"Syne",sans-serif; font-size:0.9rem; color:rgba(255,80,80,0.7); cursor:pointer; transition:all 0.2s; }
+  .btn-delete:hover { background:rgba(255,50,50,0.1); color:#ff6060; }
+  /* LOGIN */
+  #login-modal { display:none; position:fixed; inset:0; z-index:700; background:rgba(0,0,0,0.92); backdrop-filter:blur(16px); align-items:center; justify-content:center; }
+  #login-modal.open { display:flex; }
+  .login-card { background:var(--navy-light); border:1px solid rgba(232,0,29,0.3); border-radius:20px; padding:48px 40px; width:90%; max-width:400px; text-align:center; }
+  .login-logo { font-family:"Syne",sans-serif; font-size:1.6rem; font-weight:800; color:var(--off-white); margin-bottom:8px; }
+  .login-logo span { color:var(--red); }
+  .login-sub { font-size:0.85rem; color:var(--muted); margin-bottom:32px; }
+  .login-field { text-align:left; margin-bottom:16px; }
+  .login-field label { display:block; font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+  .login-field input { width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:14px 18px; color:var(--off-white); font-family:"Inter",sans-serif; font-size:0.9rem; outline:none; transition:border-color 0.2s; cursor:auto; }
+  .login-field input:focus { border-color:var(--red); }
+  .login-btn { width:100%; padding:16px; background:var(--red); border:none; border-radius:100px; font-family:"Syne",sans-serif; font-size:0.95rem; font-weight:700; color:white; cursor:pointer; margin-top:8px; transition:transform 0.2s,box-shadow 0.2s; }
+  .login-btn:hover { transform:translateY(-2px); box-shadow:0 10px 32px rgba(232,0,29,0.4); }
+  .login-error { font-size:0.82rem; color:var(--red-light); margin-top:12px; display:none; }
+  @media (max-width:768px) {
+    .film-grid { grid-template-columns:1fr 1fr; }
+    .photo-grid { grid-template-columns:1fr 1fr; }
+    .photo-item:nth-child(4n+1) { grid-row:auto; }
+  }
+
+  /* INLINE EDIT (admin mode) */
+  body.admin-mode [contenteditable="true"] {
+    outline: 1px dashed rgba(232,0,29,0.45);
+    border-radius: 4px;
+    padding: 2px 5px;
+    margin: -2px -5px;
+    cursor: text;
+    transition: outline 0.2s, background 0.2s;
+    min-width: 20px;
+    display: inline-block;
+  }
+  body.admin-mode [contenteditable="true"]:hover {
+    outline: 1px dashed rgba(232,0,29,0.7);
+    background: rgba(232,0,29,0.04);
+  }
+  body.admin-mode [contenteditable="true"]:focus {
+    outline: 2px solid var(--red);
+    background: rgba(232,0,29,0.07);
+  }
+  /* skill tag editable */
+  body.admin-mode .skill-tag { position: relative; }
+  body.admin-mode .skill-tag .del-tag {
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-left: 6px; width: 14px; height: 14px;
+    border-radius: 50%; background: rgba(232,0,29,0.7);
+    color: white; font-size: 9px; cursor: pointer; line-height: 1;
+    vertical-align: middle;
+  }
+  .del-tag { display: none; }
+  /* add skill btn */
+  .add-skill-btn {
+    display: none; padding: 8px 18px; border: 1px dashed rgba(232,0,29,0.4);
+    border-radius: 100px; font-size: 0.82rem; color: rgba(232,0,29,0.6);
+    background: transparent; cursor: pointer; transition: all 0.2s;
+    font-family: "Inter", sans-serif;
+  }
+  body.admin-mode .add-skill-btn { display: inline-block; }
+  .add-skill-btn:hover { border-color: var(--red); color: var(--red-light); background: rgba(232,0,29,0.06); }
+  /* experience add btn */
+  .add-exp-btn {
+    display: none; margin-top: 32px; padding: 14px 28px;
+    border: 2px dashed rgba(232,0,29,0.3); border-radius: 12px;
+    background: transparent; color: var(--red-light); font-family: "Syne", sans-serif;
+    font-size: 0.85rem; cursor: pointer; transition: all 0.2s; letter-spacing: 0.04em;
+  }
+  body.admin-mode .add-exp-btn { display: inline-flex; align-items: center; gap: 8px; }
+  .add-exp-btn:hover { border-color: var(--red); background: rgba(232,0,29,0.07); }
+  /* delete experience btn */
+  .del-exp-btn {
+    display: none; position: absolute; top: 0; right: 0;
+    background: rgba(232,0,29,0.15); border: 1px solid rgba(232,0,29,0.3);
+    border-radius: 8px; padding: 4px 10px; font-size: 0.7rem;
+    color: var(--red-light); cursor: pointer; transition: all 0.2s;
+    font-family: "Inter", sans-serif;
+  }
+  body.admin-mode .del-exp-btn { display: block; }
+  .del-exp-btn:hover { background: rgba(232,0,29,0.35); color: white; }
+  body.admin-mode .timeline-item { position: relative; padding-right: 80px; }
+  /* clients edit panel */
+  #clients-editor {
+    display: none; margin-top: 40px; background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(232,0,29,0.2); border-radius: 16px; padding: 28px;
+  }
+  body.admin-mode #clients-editor { display: block; }
+  .clients-editor-title { font-family: "Syne", sans-serif; font-size: 0.9rem; font-weight: 700;
+    color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 16px; }
+  .clients-tags { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .client-editable-tag {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 100px; font-family: "Syne", sans-serif; font-size: 0.9rem;
+    font-weight: 700; color: var(--muted);
+  }
+  .client-editable-tag [contenteditable] {
+    outline: none; min-width: 60px; cursor: text;
+    font-family: "Syne", sans-serif; font-weight: 700; color: var(--muted);
+  }
+  .client-editable-tag [contenteditable]:focus { color: var(--off-white); }
+  .client-del-btn {
+    width: 16px; height: 16px; border-radius: 50%; background: rgba(232,0,29,0.6);
+    border: none; color: white; font-size: 9px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    transition: background 0.2s;
+  }
+  .client-del-btn:hover { background: var(--red); }
+  .add-client-btn {
+    padding: 8px 16px; border: 1px dashed rgba(232,0,29,0.35); border-radius: 100px;
+    background: transparent; color: rgba(232,0,29,0.6); font-size: 0.82rem;
+    cursor: pointer; transition: all 0.2s; font-family: "Inter", sans-serif;
+  }
+  .add-client-btn:hover { border-color: var(--red); color: var(--red-light); }
+  .apply-clients-btn {
+    margin-top: 16px; padding: 10px 24px; background: var(--red); border: none;
+    border-radius: 100px; color: white; font-family: "Syne", sans-serif; font-size: 0.85rem;
+    font-weight: 700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .apply-clients-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(232,0,29,0.4); }
+  /* edit-hint tooltip */
+  .edit-hint-bar {
+    display: none; position: fixed; bottom: 60px; left: 50%;
+    transform: translateX(-50%); background: rgba(10,10,20,0.92);
+    border: 1px solid rgba(232,0,29,0.25); border-radius: 100px;
+    padding: 8px 20px; font-size: 0.75rem; color: var(--muted);
+    letter-spacing: 0.06em; z-index: 300; pointer-events: none;
+    white-space: nowrap;
+  }
+  body.admin-mode .edit-hint-bar { display: block; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="edit-hint-bar">&#x270E; Click any text to edit it directly</div>
+<div id="admin-badge">&#x2756; Admin Mode</div>
+<div id="admin-key-hint">Ctrl+Shift+A &mdash; Admin Login</div>
+<div id="cursor"></div>
+<div id="cursor-glow"></div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="nav-logo"><span contenteditable="false" data-editable style="display:inline;">Gerome</span><span>.</span></a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#work">Work</a></li>
+    <li><a href="#film">Film</a></li>
+    <li><a href="#photography">Photography</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#clients">Clients</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">Let's Talk</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"><canvas id="heroCanvas"></canvas></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow" contenteditable="false" data-editable>Creative Designer &amp; Motion Artist</div>
+    <h1 class="hero-title">
+      <span class="line"><span contenteditable="false" data-editable>It's not about</span></span>
+      <span class="line"><span contenteditable="false" data-editable>how they do it,</span></span>
+      <span class="line"><span>it's how <span class="accent" contenteditable="false" data-editable>I do it.</span></span></span>
+    </h1>
+    <p class="hero-sub" contenteditable="false" data-editable>I translate ideas into visual experiences — from brand identities and broadcast layouts to motion graphics and animated campaigns.</p>
+    <div class="hero-actions">
+      <a href="#work" class="btn-primary">View my work</a>
+      <a href="#contact" class="btn-ghost">Get in touch ↗</a>
+    </div>
+  </div>
+  <div class="hero-scroll-hint">
+    <span class="scroll-line"></span>
+    <span>Scroll to explore</span>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-grid">
+    <div class="about-text reveal">
+      <div class="section-label">About me</div>
+      <h2 class="section-title" contenteditable="false" data-editable>Design is how I<br>think out loud.</h2>
+      <p contenteditable="false" data-editable>I'm a <strong>multidisciplinary creative</strong> with a focus on visual design, broadcast layouts, motion graphics, and brand storytelling. I believe in work that's purposeful, unexpected, and impossible to scroll past.</p>
+      <p contenteditable="false" data-editable>From concept to final delivery, I bring together strategy and craft — whether it's a full brand identity, a broadcast package, or a 60-second animated spot that stops the feed.</p>
+      <div class="stats-row">
+        <div class="stat-item">
+          <div class="stat-num"><span contenteditable="false" data-editable>6</span><span>+</span></div>
+          <div class="stat-label" contenteditable="false" data-editable>Years experience</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num"><span contenteditable="false" data-editable>80</span><span>+</span></div>
+          <div class="stat-label" contenteditable="false" data-editable>Projects delivered</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num"><span contenteditable="false" data-editable>24</span><span>+</span></div>
+          <div class="stat-label" contenteditable="false" data-editable>Clients worldwide</div>
+        </div>
+      </div>
+    </div>
+    <div class="reveal reveal-delay-2">
+      <div class="section-label">Skills & tools</div>
+      <div class="skills-list">
+        <span class="skill-tag" contenteditable="false">Brand Identity<span class="del-tag" onclick="this.closest('.skill-tag').remove()" title="Remove">&#x2715;</span></span>
+        <span class="skill-tag" contenteditable="false">Motion Design<span class="del-tag" onclick="this.closest('.skill-tag').remove()" title="Remove">&#x2715;</span></span>
+        <span class="skill-tag" contenteditable="false">Broadcast Layouts<span class="del-tag" onclick="this.closest('.skill-tag').remove()" title="Remove">&#x2715;</span></span>
+        <span class="skill-tag" contenteditable="false">2D Animation<span class="del-tag" onclick="this.closest('.skill-tag').remove()" title="Remove">&#x2715;</span></span>
+        <span class="skill-tag" contenteditable="false">3D Modeling<span class="del-tag" onclick="this.closest('.skill-tag').remove()" title="Remove">&#x2715;</span></span>
+        <span class="skill-tag" contenteditable="false">After Effects<span class="del-tag" onclick="this.closest('.skill-tag').remove()" title="Remove">&#x2715;</span></span>
+        <span class="skill-tag" contenteditable="false">Figma<span class="del-tag" onclick="this.closest('.skill-tag').remove()" title="Remove">&#x2715;</span></span>
+        <span class="skill-tag" contenteditable="false">Cinema 4D<span class="del-tag" onclick="this.closest('.skill-tag').remove()" title="Remove">&#x2715;</span></span>
+        <span class="skill-tag" contenteditable="false">Illustrator<span class="del-tag" onclick="this.closest('.skill-tag').remove()" title="Remove">&#x2715;</span></span>
+        <span class="skill-tag" contenteditable="false">Photoshop<span class="del-tag" onclick="this.closest('.skill-tag').remove()" title="Remove">&#x2715;</span></span>
+        <span class="skill-tag" contenteditable="false">Premiere Pro<span class="del-tag" onclick="this.closest('.skill-tag').remove()" title="Remove">&#x2715;</span></span>
+        <span class="skill-tag" contenteditable="false">Blender<span class="del-tag" onclick="this.closest('.skill-tag').remove()" title="Remove">&#x2715;</span></span>
+        <span class="skill-tag" contenteditable="false">Lottie<span class="del-tag" onclick="this.closest('.skill-tag').remove()" title="Remove">&#x2715;</span></span>
+        <span class="skill-tag" contenteditable="false">Webflow<span class="del-tag" onclick="this.closest('.skill-tag').remove()" title="Remove">&#x2715;</span></span>
+        <span class="skill-tag" contenteditable="false">Typography<span class="del-tag" onclick="this.closest('.skill-tag').remove()" title="Remove">&#x2715;</span></span>
+        <span class="skill-tag" contenteditable="false">Art Direction<span class="del-tag" onclick="this.closest('.skill-tag').remove()" title="Remove">&#x2715;</span></span>
+      </div>
+      <button class="add-skill-btn" onclick="addSkillTag(this)">+ Add Skill</button>
+    </div>
+  </div>
+</section>
+
+<!-- WORK -->
+<section id="work" style="position:relative;">
+  <div class="section-admin-toolbar"><button class="toolbar-btn" onclick="openAddCard()">+ Add Project</button></div>
+  <div class="work-header">
+    <div>
+      <div class="section-label">Selected work</div>
+      <h2 class="section-title" style="margin-bottom:0" contenteditable="false" data-editable>Designs &amp; animations.</h2>
+    </div>
+    <div class="filter-tabs">
+      <button class="filter-tab active" data-filter="all">All</button>
+      <button class="filter-tab" data-filter="design">Design</button>
+      <button class="filter-tab" data-filter="motion">Motion</button>
+      <button class="filter-tab" data-filter="broadcast">Broadcast</button>
+      <button class="filter-tab" data-filter="branding">Branding</button>
+    </div>
+  </div>
+  <div class="portfolio-grid" id="portfolioGrid">
+    <div class="portfolio-card featured" data-category="broadcast" data-title="GTV Evening News Package" data-desc="A complete broadcast package for a primetime evening news program — lower thirds, bumpers, transition wipes, and fullscreen graphics all built around a bold typographic system." data-tags="Broadcast Design,Lower Thirds,Motion Graphics,After Effects">
+      <button class="admin-edit-btn" onclick="editCard(this.closest('.portfolio-card'),event)">&#x270E; Edit</button>
+      <div class="card-visual grad-1">
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none" style="position:relative;z-index:1;opacity:0.5;">
+          <rect x="8" y="20" width="64" height="40" rx="3" stroke="white" stroke-width="1.5" fill="none"/>
+          <rect x="8" y="20" width="64" height="10" fill="white" opacity="0.06"/>
+          <line x1="8" y1="50" x2="72" y2="50" stroke="white" stroke-width="0.5" opacity="0.3"/>
+          <rect x="14" y="53" width="30" height="4" rx="2" fill="white" opacity="0.35"/>
+          <rect x="14" y="27" width="18" height="3" rx="1.5" fill="#E8001D" opacity="0.9"/>
+          <circle cx="62" cy="40" r="8" stroke="white" stroke-width="1" fill="none" opacity="0.3"/>
+        </svg>
+      </div>
+      <div class="card-overlay">
+        <div class="card-category">Broadcast</div>
+        <div class="card-title">GTV Evening News Package</div>
+        <a href="#" class="card-link" onclick="return false">View case study ↗</a>
+      </div>
+    </div>
+    <div class="portfolio-card" data-category="motion" data-title="Orbital Motion Reel" data-desc="A 90-second motion reel exploring abstract 3D forms, fluid simulations, and typographic animation. Created in Cinema 4D and After Effects." data-tags="After Effects,Cinema 4D,3D Animation,Motion Reel">
+      <button class="admin-edit-btn" onclick="editCard(this.closest('.portfolio-card'),event)">&#x270E; Edit</button>
+      <div class="card-visual grad-2">
+        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" style="position:relative;z-index:1;opacity:0.5;">
+          <circle cx="30" cy="30" r="22" stroke="white" stroke-width="1.5" fill="none"/>
+          <circle cx="30" cy="30" r="12" stroke="white" stroke-width="1" fill="none" opacity="0.5"/>
+          <circle cx="30" cy="30" r="4" fill="white" opacity="0.4"/>
+        </svg>
+      </div>
+      <div class="card-overlay">
+        <div class="card-category">Motion</div>
+        <div class="card-title">Orbital Motion Reel</div>
+        <a href="#" class="card-link" onclick="return false">View project ↗</a>
+      </div>
+    </div>
+    <div class="portfolio-card" data-category="broadcast" data-title="Sports Show Open" data-desc="Animated open sequence for a weekly sports highlights show — kinetic type, score cards, player name supers, and a high-energy 30-second cold open." data-tags="Broadcast,Sports Graphics,Kinetic Type,After Effects">
+      <button class="admin-edit-btn" onclick="editCard(this.closest('.portfolio-card'),event)">&#x270E; Edit</button>
+      <div class="card-visual grad-3">
+        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" style="position:relative;z-index:1;opacity:0.5;">
+          <polygon points="12,12 48,12 48,40 12,40" stroke="white" stroke-width="1.5" fill="none"/>
+          <line x1="12" y1="26" x2="48" y2="26" stroke="white" stroke-width="0.5" opacity="0.4"/>
+          <rect x="16" y="15" width="16" height="3" rx="1.5" fill="#E8001D" opacity="0.9"/>
+          <rect x="16" y="29" width="24" height="2.5" rx="1.2" fill="white" opacity="0.4"/>
+          <polygon points="30,44 36,54 24,54" fill="white" opacity="0.2"/>
+        </svg>
+      </div>
+      <div class="card-overlay">
+        <div class="card-category">Broadcast</div>
+        <div class="card-title">Sports Show Open</div>
+        <a href="#" class="card-link" onclick="return false">View project ↗</a>
+      </div>
+    </div>
+    <div class="portfolio-card" data-category="motion" data-title="Bloom Campaign" data-desc="Animated social campaign for a fashion brand's spring collection — 12 assets across Stories, Reels, and display ads with a consistent visual language." data-tags="2D Animation,Social Media,Campaign,Lottie">
+      <button class="admin-edit-btn" onclick="editCard(this.closest('.portfolio-card'),event)">&#x270E; Edit</button>
+      <div class="card-visual grad-4">
+        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" style="position:relative;z-index:1;opacity:0.5;">
+          <rect x="16" y="8" width="28" height="44" rx="4" stroke="white" stroke-width="1.5" fill="none"/>
+          <rect x="22" y="16" width="16" height="16" rx="2" stroke="white" stroke-width="1" fill="none" opacity="0.5"/>
+          <rect x="22" y="36" width="10" height="2" rx="1" fill="white" opacity="0.4"/>
+          <rect x="22" y="40" width="16" height="2" rx="1" fill="white" opacity="0.25"/>
+        </svg>
+      </div>
+      <div class="card-overlay">
+        <div class="card-category">Motion / Social</div>
+        <div class="card-title">Bloom Campaign</div>
+        <a href="#" class="card-link" onclick="return false">View assets ↗</a>
+      </div>
+    </div>
+    <div class="portfolio-card" data-category="branding" data-title="Forge Studio Identity" data-desc="Brand identity for an architecture and interior design studio — a mark built on tension and balance, extended across print and digital collateral." data-tags="Brand Identity,Logo Design,Print,Editorial">
+      <button class="admin-edit-btn" onclick="editCard(this.closest('.portfolio-card'),event)">&#x270E; Edit</button>
+      <div class="card-visual grad-5">
+        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" style="position:relative;z-index:1;opacity:0.5;">
+          <polygon points="30,8 52,52 8,52" stroke="white" stroke-width="1.5" fill="none"/>
+          <polygon points="30,20 44,48 16,48" stroke="white" stroke-width="0.8" fill="white" opacity="0.1"/>
+        </svg>
+      </div>
+      <div class="card-overlay">
+        <div class="card-category">Branding</div>
+        <div class="card-title">Forge Studio Identity</div>
+        <a href="#" class="card-link" onclick="return false">View identity ↗</a>
+      </div>
+    </div>
+    <div class="portfolio-card" data-category="broadcast" data-title="Talk Show Lower Thirds" data-desc="Custom lower thirds, name supers, and chyron system for a weekly talk show — animated in After Effects with modular presets for fast live-broadcast turnaround." data-tags="Broadcast,Lower Thirds,Chyrons,Live Graphics">
+      <button class="admin-edit-btn" onclick="editCard(this.closest('.portfolio-card'),event)">&#x270E; Edit</button>
+      <div class="card-visual grad-6">
+        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" style="position:relative;z-index:1;opacity:0.5;">
+          <rect x="6" y="36" width="48" height="14" rx="2" stroke="white" stroke-width="1" fill="none" opacity="0.5"/>
+          <rect x="6" y="36" width="4" height="14" rx="1" fill="#E8001D" opacity="0.9"/>
+          <rect x="14" y="39" width="20" height="2.5" rx="1.2" fill="white" opacity="0.5"/>
+          <rect x="14" y="44" width="12" height="2" rx="1" fill="white" opacity="0.3"/>
+          <rect x="8" y="10" width="44" height="22" rx="2" stroke="white" stroke-width="1" fill="none" opacity="0.2"/>
+        </svg>
+      </div>
+      <div class="card-overlay">
+        <div class="card-category">Broadcast</div>
+        <div class="card-title">Talk Show Lower Thirds</div>
+        <a href="#" class="card-link" onclick="return false">View project ↗</a>
+      </div>
+    </div>
+    <button class="add-card-btn" onclick="openAddCard()">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E8001D" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      <span>Add Project</span>
+    </button>
+  </div>
+</section>
+
+
+<!-- FILM & AWARDS -->
+<section id="film" style="position:relative;">
+  <div class="section-admin-toolbar"><button class="toolbar-btn" onclick="openAddFilm()">+ Add Film</button></div>
+  <div class="section-label reveal">Film</div>
+  <h2 class="section-title reveal" contenteditable="false" data-editable>Documentaries,<br>short films &amp; awards.</h2>
+  <div class="film-tabs">
+    <button class="film-tab active" data-ffilter="all">All</button>
+    <button class="film-tab" data-ffilter="documentary">Documentary</button>
+    <button class="film-tab" data-ffilter="shortfilm">Short Film</button>
+    <button class="film-tab" data-ffilter="award">Awarded</button>
+  </div>
+  <div class="film-grid" id="filmGrid">
+    <div class="film-card reveal" data-ftype="documentary">
+      <button class="admin-edit-btn" onclick="editFilm(this.closest('.film-card'),event)">&#x270E; Edit</button>
+      <div class="film-poster" style="background:linear-gradient(135deg,#0a1a12,#0a3020,#0a1a14);">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="opacity:0.35;"><rect x="4" y="8" width="40" height="32" rx="2" stroke="white" stroke-width="1.5" fill="none"/><circle cx="24" cy="24" r="8" stroke="white" stroke-width="1" fill="none" opacity="0.6"/><polygon points="20,20 32,24 20,28" fill="white" opacity="0.5"/></svg>
+      </div>
+      <div class="film-info">
+        <span class="film-type-badge badge-documentary">Documentary</span>
+        <div class="film-title">Unseen Frequencies</div>
+        <div class="film-role">Director &amp; Editor</div>
+        <div class="film-award"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Best Documentary &mdash; CineManila 2023</div>
+        <div class="film-year">2023 &middot; 42 min</div>
+      </div>
+    </div>
+    <div class="film-card reveal" data-ftype="shortfilm">
+      <button class="admin-edit-btn" onclick="editFilm(this.closest('.film-card'),event)">&#x270E; Edit</button>
+      <div class="film-poster" style="background:linear-gradient(135deg,#0a0a1a,#1a1a0a,#101010);">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="opacity:0.35;"><path d="M8 8h32v32H8z" stroke="white" stroke-width="1.5" fill="none"/><path d="M8 16h32M16 8v8M24 8v8M32 8v8" stroke="white" stroke-width="1" opacity="0.4"/><circle cx="24" cy="30" r="6" stroke="white" stroke-width="1" fill="none" opacity="0.6"/><polygon points="21,27 29,30 21,33" fill="white" opacity="0.5"/></svg>
+      </div>
+      <div class="film-info">
+        <span class="film-type-badge badge-shortfilm">Short Film</span>
+        <div class="film-title">Before the Signal</div>
+        <div class="film-role">Writer &amp; Director</div>
+        <div class="film-award"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Official Selection &mdash; Cinemalaya 2022</div>
+        <div class="film-year">2022 &middot; 18 min</div>
+      </div>
+    </div>
+    <div class="film-card reveal" data-ftype="shortfilm">
+      <button class="admin-edit-btn" onclick="editFilm(this.closest('.film-card'),event)">&#x270E; Edit</button>
+      <div class="film-poster" style="background:linear-gradient(135deg,#1a1204,#3a2808,#1a1204);">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="opacity:0.35;"><circle cx="24" cy="24" r="18" stroke="white" stroke-width="1.5" fill="none"/><path d="M24 6v18l10 10" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/></svg>
+      </div>
+      <div class="film-info">
+        <span class="film-type-badge badge-shortfilm">Short Film</span>
+        <div class="film-title">Sikat</div>
+        <div class="film-role">Cinematographer &amp; Editor</div>
+        <div class="film-year">2021 &middot; 12 min</div>
+      </div>
+    </div>
+    <button class="add-film-btn" onclick="openAddFilm()">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E8001D" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      <span>Add Film</span>
+    </button>
+  </div>
+</section>
+
+<!-- PHOTOGRAPHY -->
+<section id="photography" style="position:relative;">
+  <div class="section-admin-toolbar"><button class="toolbar-btn" onclick="openAddPhoto()">+ Add Photo</button></div>
+  <div class="section-label reveal">Photography</div>
+  <h2 class="section-title reveal" contenteditable="false" data-editable>Frames I&#39;ve<br>chosen to keep.</h2>
+  <div class="photo-grid" id="photoGrid">
+    <div class="photo-item reveal" data-caption="Street / Manila, 2023">
+      <button class="admin-edit-btn" onclick="editPhoto(this.closest('.photo-item'),event)">&#x270E; Edit</button>
+      <div class="photo-inner" style="min-height:260px;background:linear-gradient(135deg,#1a0309,#3b0714,#1e0b1b);"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1" opacity="0.25" style="position:relative;z-index:1;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="white"/><polyline points="21,15 16,10 5,21"/></svg></div>
+      <div class="photo-caption">Street / Manila, 2023</div>
+    </div>
+    <div class="photo-item reveal" data-caption="Portrait Series, 2023">
+      <button class="admin-edit-btn" onclick="editPhoto(this.closest('.photo-item'),event)">&#x270E; Edit</button>
+      <div class="photo-inner" style="min-height:200px;background:linear-gradient(135deg,#1a0a0a,#3d1010,#2a0808);"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1" opacity="0.25" style="position:relative;z-index:1;"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+      <div class="photo-caption">Portrait Series, 2023</div>
+    </div>
+    <div class="photo-item reveal" data-caption="Urban Architecture, 2022">
+      <button class="admin-edit-btn" onclick="editPhoto(this.closest('.photo-item'),event)">&#x270E; Edit</button>
+      <div class="photo-inner" style="min-height:200px;background:linear-gradient(135deg,#1a0000,#400010,#1e0a0a);"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1" opacity="0.25" style="position:relative;z-index:1;"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div>
+      <div class="photo-caption">Urban Architecture, 2022</div>
+    </div>
+    <div class="photo-item reveal" data-caption="Light Study, 2022">
+      <button class="admin-edit-btn" onclick="editPhoto(this.closest('.photo-item'),event)">&#x270E; Edit</button>
+      <div class="photo-inner" style="min-height:200px;background:linear-gradient(135deg,#1a0a12,#35081a,#1a0510);"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1" opacity="0.25" style="position:relative;z-index:1;"><circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/></svg></div>
+      <div class="photo-caption">Light Study, 2022</div>
+    </div>
+    <button class="add-photo-btn" onclick="openAddPhoto()">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E8001D" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      <span>Add Photo</span>
+    </button>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="section-label reveal">Experience</div>
+  <h2 class="section-title reveal" contenteditable="false" data-editable>Where I've built<br>my craft.</h2>
+  <div class="timeline">
+    <div class="timeline-item">
+      <button class="del-exp-btn" onclick="this.closest('.timeline-item').remove()" title="Delete entry">&#x2715; Delete</button>
+      <div class="timeline-date" contenteditable="false" data-editable>2023 — Present</div>
+      <div class="timeline-role" contenteditable="false" data-editable>Senior Creative Designer</div>
+      <div class="timeline-company" contenteditable="false" data-editable>Studio Archipelago</div>
+      <div class="timeline-desc" contenteditable="false" data-editable>Lead designer for brand and motion projects across broadcast, fashion, and FMCG clients. Manage a team of three junior creatives and own creative direction from brief to delivery.</div>
+    </div>
+    <div class="timeline-item">
+      <button class="del-exp-btn" onclick="this.closest('.timeline-item').remove()" title="Delete entry">&#x2715; Delete</button>
+      <div class="timeline-date" contenteditable="false" data-editable>2021 — 2023</div>
+      <div class="timeline-role" contenteditable="false" data-editable>Broadcast Motion Designer</div>
+      <div class="timeline-company" contenteditable="false" data-editable>Vertex Creative Agency</div>
+      <div class="timeline-desc" contenteditable="false" data-editable>Produced animated broadcast packages, lower thirds, and motion content for TV networks and social campaigns. Delivered 200+ motion assets across a two-year engagement.</div>
+    </div>
+    <div class="timeline-item">
+      <button class="del-exp-btn" onclick="this.closest('.timeline-item').remove()" title="Delete entry">&#x2715; Delete</button>
+      <div class="timeline-date" contenteditable="false" data-editable>2019 — 2021</div>
+      <div class="timeline-role" contenteditable="false" data-editable>Visual Designer</div>
+      <div class="timeline-company" contenteditable="false" data-editable>Novalabs Digital</div>
+      <div class="timeline-desc" contenteditable="false" data-editable>Designed broadcast graphics, marketing collateral, and digital campaigns. Partnered with producers and directors to deliver broadcast-ready layouts and packages.</div>
+    </div>
+    <div class="timeline-item">
+      <button class="del-exp-btn" onclick="this.closest('.timeline-item').remove()" title="Delete entry">&#x2715; Delete</button>
+      <div class="timeline-date" contenteditable="false" data-editable>2018 — 2019</div>
+      <div class="timeline-role" contenteditable="false" data-editable>Junior Designer</div>
+      <div class="timeline-company" contenteditable="false" data-editable>Blank Page Studio</div>
+      <div class="timeline-desc" contenteditable="false" data-editable>First role in a boutique creative studio. Developed foundational skills in identity design, typography, and visual storytelling across a range of clients.</div>
+    </div>
+  </div>
+  <button class="add-exp-btn" onclick="addExperience()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Add Experience
+  </button>
+</section>
+
+<!-- CLIENTS -->
+<section id="clients">
+  <div class="clients-header reveal">
+    <div class="section-label">Companies I've worked with</div>
+    <h2 class="section-title" contenteditable="false" data-editable>Trusted by brands<br>that move fast.</h2>
+  </div>
+  <div class="clients-track-wrap">
+    <div class="clients-track" id="clientsTrack"></div>
+  </div>
+  <div id="clients-editor">
+    <div class="clients-editor-title">&#x270E; Edit Clients (admin only)</div>
+    <div class="clients-tags" id="clientsTagList"></div>
+    <button class="add-client-btn" onclick="addClientTag()" style="margin-top:12px;">+ Add Client</button>
+    <br>
+    <button class="apply-clients-btn" onclick="applyClients()">&#x27F3; Update Marquee</button>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-inner">
+    <div class="section-label reveal">Contact</div>
+    <h2 class="section-title reveal" contenteditable="false" data-editable>Let's make something<br>worth remembering.</h2>
+    <p class="contact-tagline reveal" contenteditable="false" data-editable>Got a project, a brief, or just an idea? I'm always open to the right collaboration. Fill in the form or reach out directly.</p>
+    <form class="contact-form reveal" id="contactForm" onsubmit="handleSubmit(event)">
+      <div class="form-row">
+        <div class="form-field">
+          <label for="fname">Your name</label>
+          <input id="fname" type="text" placeholder="Juan dela Cruz" required>
+        </div>
+        <div class="form-field">
+          <label for="femail">Email address</label>
+          <input id="femail" type="email" placeholder="hello@studio.com" required>
+        </div>
+      </div>
+      <div class="form-field">
+        <label for="ftype">Project type</label>
+        <select id="ftype">
+          <option value="">Select a project type</option>
+          <option>Brand Identity</option>
+          <option>Motion Design / Animation</option>
+          <option>Broadcast Layout</option>
+          <option>Social Campaign</option>
+          <option>Photography</option>
+          <option>Documentary / Short Film</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label for="fmsg">Your message</label>
+        <textarea id="fmsg" placeholder="Tell me about your project, timeline, and budget..." required></textarea>
+      </div>
+      <button type="submit" class="form-submit">Send message →</button>
+    </form>
+    <div class="contact-links">
+      <a href="mailto:business.gerome@gmail.com" class="contact-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        business.gerome@gmail.com
+      </a>
+      <a href="#" class="contact-link" onclick="return false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+        @geromevinas
+      </a>
+      <a href="#" class="contact-link" onclick="return false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        imgeromevinas
+      </a>
+      <a href="#" class="contact-link" onclick="return false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2H3v16h5v4l4-4h5l4-4V2zm-10 9V7m4 4V7"/></svg>
+        Behance
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p contenteditable="false" data-editable>© 2024 Gerome Viñas — Creative Designer</p>
+  <p contenteditable="false" data-editable>Built with care · Manila, Philippines</p>
+</footer>
+
+<!-- MODAL -->
+<div id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeModalBtn()">✕</button>
+    <div class="modal-category" id="modal-cat"></div>
+    <div class="modal-visual" id="modal-visual"></div>
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-desc" id="modal-desc"></div>
+    <div class="modal-tags" id="modal-tags"></div>
+  </div>
+</div>
+
+<div id="toast">Message sent — I'll be in touch soon! ✦</div>
+
+<script>
+// CURSOR
+const cursor = document.getElementById('cursor');
+const cursorGlow = document.getElementById('cursor-glow');
+let mx = 0, my = 0, gx = 0, gy = 0;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx + 'px';
+  cursor.style.top = my + 'px';
+});
+function animateGlow() {
+  gx += (mx - gx) * 0.08;
+  gy += (my - gy) * 0.08;
+  cursorGlow.style.left = gx + 'px';
+  cursorGlow.style.top = gy + 'px';
+  requestAnimationFrame(animateGlow);
+}
+animateGlow();
+document.querySelectorAll('a, button, .portfolio-card, .skill-tag, .filter-tab, .client-logo').forEach(el => {
+  el.addEventListener('mouseenter', () => { cursor.style.width = '24px'; cursor.style.height = '24px'; cursor.style.background = '#FF3347'; });
+  el.addEventListener('mouseleave', () => { cursor.style.width = '12px'; cursor.style.height = '12px'; cursor.style.background = '#E8001D'; });
+});
+
+// NAV SCROLL
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => { navbar.classList.toggle('scrolled', window.scrollY > 60); });
+
+// HERO CANVAS
+const canvas = document.getElementById('heroCanvas');
+const ctx = canvas.getContext('2d');
+let W, H, particles;
+function initCanvas() {
+  W = canvas.width = canvas.offsetWidth;
+  H = canvas.height = canvas.offsetHeight;
+  particles = Array.from({length: 60}, () => ({
+    x: Math.random() * W, y: Math.random() * H,
+    vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4,
+    r: Math.random() * 2 + 0.5, opacity: Math.random() * 0.4 + 0.1
+  }));
+}
+function drawCanvas() {
+  ctx.clearRect(0, 0, W, H);
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const d = Math.sqrt(dx*dx + dy*dy);
+      if (d < 130) {
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(232,0,29,${0.1 * (1 - d/130)})`;
+        ctx.lineWidth = 0.5;
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.stroke();
+      }
+    }
+  }
+  particles.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(232,0,29,${p.opacity})`;
+    ctx.fill();
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 0 || p.x > W) p.vx *= -1;
+    if (p.y < 0 || p.y > H) p.vy *= -1;
+  });
+  requestAnimationFrame(drawCanvas);
+}
+window.addEventListener('resize', initCanvas);
+initCanvas(); drawCanvas();
+
+// REVEAL
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal, .timeline-item').forEach(el => observer.observe(el));
+
+// FILTER
+document.querySelectorAll('.filter-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const filter = tab.dataset.filter;
+    document.querySelectorAll('.portfolio-card').forEach(card => {
+      const show = filter === 'all' || card.dataset.category === filter;
+      card.style.transition = 'opacity 0.3s, transform 0.3s';
+      card.style.opacity = show ? '1' : '0.15';
+      card.style.transform = show ? '' : 'scale(0.96)';
+      card.style.pointerEvents = show ? 'auto' : 'none';
+    });
+  });
+});
+
+// MODAL
+document.querySelectorAll('.portfolio-card').forEach(card => {
+  card.addEventListener('click', () => {
+    const visual = card.querySelector('.card-visual').classList[1];
+    document.getElementById('modal-cat').textContent = card.dataset.category;
+    document.getElementById('modal-title').textContent = card.dataset.title;
+    document.getElementById('modal-desc').textContent = card.dataset.desc;
+    document.getElementById('modal-visual').className = 'modal-visual ' + visual;
+    document.getElementById('modal-tags').innerHTML = (card.dataset.tags||'').split(',').map(t=>`<span class="modal-tag">${t.trim()}</span>`).join('');
+    document.getElementById('modal-overlay').classList.add('open');
+  });
+});
+function closeModal(e) { if (e.target === document.getElementById('modal-overlay')) document.getElementById('modal-overlay').classList.remove('open'); }
+function closeModalBtn() { document.getElementById('modal-overlay').classList.remove('open'); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') document.getElementById('modal-overlay').classList.remove('open'); });
+
+// CLIENTS MARQUEE
+const clients = [
+  'Lumina Co.', 'Vertex Studio', 'Aura Health', 'Forge Spaces',
+  'Nova Digital', 'Blank Page', 'Orbit Labs', 'Prism Agency',
+  'Keel Media', 'Dusk & Dawn', 'Archipelago', 'Sonder Brand'
+];
+const track = document.getElementById('clientsTrack');
+[...clients, ...clients].forEach(name => {
+  const div = document.createElement('div');
+  div.className = 'client-logo';
+  div.innerHTML = `<span class="client-name">${name}</span>`;
+  track.appendChild(div);
+});
+
+// CONTACT — sends to business.gerome@gmail.com via Formspree
+async function handleSubmit(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('.form-submit');
+  const name    = document.getElementById('fname').value.trim();
+  const email   = document.getElementById('femail').value.trim();
+  const type    = document.getElementById('ftype').value;
+  const message = document.getElementById('fmsg').value.trim();
+
+  btn.textContent = 'Sending…'; btn.disabled = true;
+
+  try {
+    const res = await fetch('https://formspree.io/f/xrevlpje', {
+      // ↑ Replace YOUR_FORM_ID with the ID from formspree.io (free signup, takes 2 min)
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ name, email, projectType: type, message })
+    });
+    if (res.ok) {
+      e.target.reset();
+      const toast = document.getElementById('toast');
+      toast.textContent = 'Message sent — I\'ll be in touch soon! ✦';
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3500);
+    } else {
+      alert('Something went wrong. Please email business.gerome@gmail.com directly.');
+    }
+  } catch (err) {
+    alert('Network error. Please email business.gerome@gmail.com directly.');
+  } finally {
+    btn.textContent = 'Send message →'; btn.disabled = false;
+  }
+}
+// ── ADMIN AUTH ─────────────────────────────────────────────
+const ADMIN_PASSWORD = 'gerome2024'; // Change this to your preferred password
+let isAdmin = false;
+let currentEditTarget = null;
+let currentEditType = null;
+
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.shiftKey && e.key === 'A') { e.preventDefault(); openLogin(); }
+});
+
+function openLogin() {
+  document.getElementById('login-modal').classList.add('open');
+  setTimeout(() => document.getElementById('admin-password').focus(), 100);
+}
+function closeLogin() {
+  document.getElementById('login-modal').classList.remove('open');
+  document.getElementById('admin-password').value = '';
+  document.getElementById('login-error').style.display = 'none';
+}
+function tryLogin() {
+  const pw = document.getElementById('admin-password').value;
+  if (pw === ADMIN_PASSWORD) {
+    isAdmin = true;
+    document.body.classList.add('admin-mode');
+    closeLogin();
+    showToastMsg('Admin mode active ❖ Edit anything on the page.');
+    rebindCursor();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('admin-password').value = '';
+    document.getElementById('admin-password').focus();
+  }
+}
+
+// ── ADMIN PANEL CORE ────────────────────────────────────────
+function openAdminPanel(type, fields, target) {
+  currentEditTarget = target;
+  currentEditType = type;
+  document.getElementById('panel-title-text').textContent = target ? 'Edit Entry' : 'Add New Entry';
+  document.getElementById('btn-delete-entry').style.display = target ? 'block' : 'none';
+  const container = document.getElementById('admin-fields');
+  container.innerHTML = '';
+  fields.forEach(f => {
+    const div = document.createElement('div'); div.className = 'admin-field';
+    const label = document.createElement('label'); label.textContent = f.label; div.appendChild(label);
+    let input;
+    if (f.type === 'textarea') {
+      input = document.createElement('textarea'); input.value = f.value || '';
+    } else if (f.type === 'select') {
+      input = document.createElement('select');
+      (f.options || []).forEach(opt => {
+        const o = document.createElement('option');
+        o.value = opt.v || opt; o.textContent = opt.l || opt;
+        if ((f.value || '') === (opt.v || opt)) o.selected = true;
+        input.appendChild(o);
+      });
+    } else {
+      input = document.createElement('input');
+      input.type = f.type || 'text'; input.value = f.value || ''; input.placeholder = f.placeholder || '';
+    }
+    input.dataset.field = f.key; div.appendChild(input); container.appendChild(div);
+  });
+  document.getElementById('admin-panel').classList.add('open');
+}
+function closeAdminPanel() {
+  document.getElementById('admin-panel').classList.remove('open');
+  currentEditTarget = null; currentEditType = null;
+}
+function getAdminFields() {
+  const r = {};
+  document.querySelectorAll('#admin-fields [data-field]').forEach(el => { r[el.dataset.field] = el.value; });
+  return r;
+}
+
+// ── PORTFOLIO CARD ──────────────────────────────────────────
+function editCard(card, e) {
+  e && e.stopPropagation();
+  if (!isAdmin) return;
+  openAdminPanel('card', [
+    { key:'title', label:'Project Title', value:card.dataset.title },
+    { key:'category', label:'Category', type:'select', value:card.dataset.category, options:['design','motion','broadcast','branding'] },
+    { key:'desc', label:'Description', type:'textarea', value:card.dataset.desc },
+    { key:'tags', label:'Tags (comma-separated)', value:card.dataset.tags },
+    { key:'featured', label:'Featured (wide card)', type:'select', value:card.classList.contains('featured')?'yes':'no', options:['no','yes'] },
+    { key:'linkUrl', label:'Link URL (optional)', value:'', placeholder:'https://...' },
+    { key:'imageUrl', label:'Image URL (leave blank to keep)', value:'', placeholder:'https://...' }
+  ], card);
+}
+function openAddCard() {
+  if (!isAdmin) return;
+  openAdminPanel('card', [
+    { key:'title', label:'Project Title', placeholder:'My New Project' },
+    { key:'category', label:'Category', type:'select', options:['design','motion','broadcast','branding'] },
+    { key:'desc', label:'Description', type:'textarea', placeholder:'Describe this project...' },
+    { key:'tags', label:'Tags (comma-separated)', placeholder:'After Effects, Motion Design' },
+    { key:'featured', label:'Featured (wide card)', type:'select', options:['no','yes'] },
+    { key:'linkUrl', label:'Link URL (optional)', placeholder:'https://...' },
+    { key:'imageUrl', label:'Image URL (optional)', placeholder:'https://...' }
+  ], null);
+}
+function saveCard(data) {
+  const grads = ['grad-1','grad-2','grad-3','grad-4','grad-5','grad-6'];
+  const g = grads[Math.floor(Math.random() * grads.length)];
+  const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+  if (currentEditTarget) {
+    const card = currentEditTarget;
+    card.dataset.title = data.title; card.dataset.category = data.category;
+    card.dataset.desc = data.desc; card.dataset.tags = data.tags;
+    card.querySelector('.card-category').textContent = cap(data.category);
+    card.querySelector('.card-title').textContent = data.title;
+    card.classList.toggle('featured', data.featured === 'yes');
+    if (data.linkUrl) { const lnk = card.querySelector('.card-link'); lnk.href = data.linkUrl; lnk.removeAttribute('onclick'); }
+    if (data.imageUrl) {
+      const vis = card.querySelector('.card-visual');
+      vis.innerHTML = '<img src="' + data.imageUrl + '" alt="' + data.title + '" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:0;">';
+    }
+  } else {
+    const card = document.createElement('div');
+    card.className = 'portfolio-card' + (data.featured === 'yes' ? ' featured' : '');
+    card.dataset.category = data.category; card.dataset.title = data.title;
+    card.dataset.desc = data.desc; card.dataset.tags = data.tags;
+    const linkAttr = data.linkUrl ? 'href="' + data.linkUrl + '"' : 'href="#" onclick="return false"';
+    const imgContent = data.imageUrl
+      ? '<img src="' + data.imageUrl + '" alt="' + data.title + '" style="width:100%;height:100%;object-fit:cover;">'
+      : '<svg width="50" height="50" viewBox="0 0 60 60" fill="none" style="position:relative;z-index:1;opacity:0.4;"><rect x="10" y="10" width="40" height="40" rx="4" stroke="white" stroke-width="1.5" fill="none"/></svg>';
+    card.innerHTML = '<button class="admin-edit-btn" onclick="editCard(this.closest(\'.portfolio-card\'),event)">&#x270E; Edit</button>'
+      + '<div class="card-visual ' + g + '">' + imgContent + '</div>'
+      + '<div class="card-overlay"><div class="card-category">' + cap(data.category) + '</div><div class="card-title">' + data.title + '</div>'
+      + '<a ' + linkAttr + ' class="card-link">View project &#x2197;</a></div>';
+    card.addEventListener('click', ev => {
+      if (isAdmin) return;
+      document.getElementById('modal-cat').textContent = card.dataset.category;
+      document.getElementById('modal-title').textContent = card.dataset.title;
+      document.getElementById('modal-desc').textContent = card.dataset.desc;
+      document.getElementById('modal-visual').className = 'modal-visual ' + g;
+      document.getElementById('modal-tags').innerHTML = (card.dataset.tags||'').split(',').map(t=>'<span class="modal-tag">' + t.trim() + '</span>').join('');
+      document.getElementById('modal-overlay').classList.add('open');
+    });
+    document.getElementById('portfolioGrid').insertBefore(card, document.querySelector('.add-card-btn'));
+  }
+  rebindCursor();
+}
+
+// ── FILM ────────────────────────────────────────────────────
+function editFilm(card, e) {
+  e && e.stopPropagation();
+  if (!isAdmin) return;
+  const awardEl = card.querySelector('.film-award');
+  const awardText = awardEl ? awardEl.textContent.trim() : '';
+  openAdminPanel('film', [
+    { key:'title', label:'Film Title', value:card.querySelector('.film-title').textContent },
+    { key:'type', label:'Type', type:'select', value:card.dataset.ftype, options:[{v:'documentary',l:'Documentary'},{v:'shortfilm',l:'Short Film'}] },
+    { key:'role', label:'Your Role', value:card.querySelector('.film-role').textContent },
+    { key:'award', label:'Award / Festival (optional)', value:awardText },
+    { key:'year', label:'Year & Duration', value:card.querySelector('.film-year').textContent },
+    { key:'imageUrl', label:'Poster Image URL (optional)', value:'', placeholder:'https://...' }
+  ], card);
+}
+function openAddFilm() {
+  if (!isAdmin) return;
+  openAdminPanel('film', [
+    { key:'title', label:'Film Title', placeholder:'My Film' },
+    { key:'type', label:'Type', type:'select', options:[{v:'documentary',l:'Documentary'},{v:'shortfilm',l:'Short Film'}] },
+    { key:'role', label:'Your Role', placeholder:'Director & Editor' },
+    { key:'award', label:'Award / Festival (optional)', placeholder:'Best Film — Festival 2024' },
+    { key:'year', label:'Year & Duration', placeholder:'2024 · 15 min' },
+    { key:'imageUrl', label:'Poster Image URL (optional)', placeholder:'https://...' }
+  ], null);
+}
+function saveFilm(data) {
+  const badgeClass = data.type === 'documentary' ? 'badge-documentary' : 'badge-shortfilm';
+  const badgeLabel = data.type === 'documentary' ? 'Documentary' : 'Short Film';
+  const starSvg = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
+  const awardHtml = data.award ? '<div class="film-award">' + starSvg + data.award + '</div>' : '';
+  const posterGrads = ['linear-gradient(135deg,#0a1a12,#0a3020)','linear-gradient(135deg,#0f0a1a,#200a2a)','linear-gradient(135deg,#1a0a0a,#3d1010)'];
+  if (currentEditTarget) {
+    const card = currentEditTarget;
+    card.dataset.ftype = data.type;
+    card.querySelector('.film-type-badge').className = 'film-type-badge ' + badgeClass;
+    card.querySelector('.film-type-badge').textContent = badgeLabel;
+    card.querySelector('.film-title').textContent = data.title;
+    card.querySelector('.film-role').textContent = data.role;
+    card.querySelector('.film-year').textContent = data.year;
+    const oldAward = card.querySelector('.film-award'); if (oldAward) oldAward.remove();
+    if (data.award) { const tmp = document.createElement('div'); tmp.innerHTML = awardHtml; card.querySelector('.film-info').insertBefore(tmp.firstChild, card.querySelector('.film-year')); }
+    if (data.imageUrl) { const p = card.querySelector('.film-poster'); p.innerHTML = '<img src="' + data.imageUrl + '" alt="' + data.title + '" style="width:100%;height:100%;object-fit:cover;">'; p.style.background = 'none'; }
+  } else {
+    const bgGrad = posterGrads[Math.floor(Math.random()*posterGrads.length)];
+    const card = document.createElement('div');
+    card.className = 'film-card reveal'; card.dataset.ftype = data.type;
+    const posterContent = data.imageUrl
+      ? '<img src="' + data.imageUrl + '" alt="' + data.title + '" style="width:100%;height:100%;object-fit:cover;">'
+      : '<svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="opacity:0.35;"><rect x="4" y="8" width="40" height="32" rx="2" stroke="white" stroke-width="1.5" fill="none"/></svg>';
+    card.innerHTML = '<button class="admin-edit-btn" onclick="editFilm(this.closest(\'.film-card\'),event)">&#x270E; Edit</button>'
+      + '<div class="film-poster" style="background:' + bgGrad + ';">' + posterContent + '</div>'
+      + '<div class="film-info"><span class="film-type-badge ' + badgeClass + '">' + badgeLabel + '</span>'
+      + '<div class="film-title">' + data.title + '</div><div class="film-role">' + data.role + '</div>'
+      + awardHtml + '<div class="film-year">' + data.year + '</div></div>';
+    document.getElementById('filmGrid').insertBefore(card, document.querySelector('.add-film-btn'));
+    observer.observe(card);
+  }
+  rebindCursor();
+}
+
+// ── PHOTO ───────────────────────────────────────────────────
+function editPhoto(item, e) {
+  e && e.stopPropagation();
+  if (!isAdmin) return;
+  openAdminPanel('photo', [
+    { key:'caption', label:'Caption', value:item.dataset.caption||'' },
+    { key:'imageUrl', label:'Image URL (leave blank to keep)', value:'', placeholder:'https://...' }
+  ], item);
+}
+function openAddPhoto() {
+  if (!isAdmin) return;
+  openAdminPanel('photo', [
+    { key:'caption', label:'Caption', placeholder:'Location / Year' },
+    { key:'imageUrl', label:'Image URL', placeholder:'https://...' }
+  ], null);
+}
+function savePhoto(data) {
+  const grads = ['linear-gradient(135deg,#1a0309,#3b0714)','linear-gradient(135deg,#1a0a0a,#3d1010)','linear-gradient(135deg,#0f0a1a,#200a2a)','linear-gradient(135deg,#1a0a12,#35081a)'];
+  if (currentEditTarget) {
+    const item = currentEditTarget; item.dataset.caption = data.caption;
+    item.querySelector('.photo-caption').textContent = data.caption;
+    if (data.imageUrl) { const inner = item.querySelector('.photo-inner'); inner.style.background = 'none'; inner.innerHTML = '<img src="' + data.imageUrl + '" alt="' + data.caption + '" style="width:100%;height:100%;object-fit:cover;">'; }
+  } else {
+    const bg = grads[Math.floor(Math.random()*grads.length)];
+    const item = document.createElement('div');
+    item.className = 'photo-item reveal'; item.dataset.caption = data.caption;
+    const imgContent = data.imageUrl
+      ? '<img src="' + data.imageUrl + '" alt="' + data.caption + '" style="width:100%;height:100%;object-fit:cover;">'
+      : '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1" opacity="0.25"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>';
+    item.innerHTML = '<button class="admin-edit-btn" onclick="editPhoto(this.closest(\'.photo-item\'),event)">&#x270E; Edit</button>'
+      + '<div class="photo-inner" style="min-height:200px;background:' + bg + ';">' + imgContent + '</div>'
+      + '<div class="photo-caption">' + data.caption + '</div>';
+    document.getElementById('photoGrid').insertBefore(item, document.querySelector('.add-photo-btn'));
+    observer.observe(item);
+  }
+  rebindCursor();
+}
+
+// ── FILM TABS ───────────────────────────────────────────────
+document.querySelectorAll('.film-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.film-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const f = tab.dataset.ffilter;
+    document.querySelectorAll('.film-card').forEach(card => {
+      const show = f === 'all' || (f === 'award' && card.querySelector('.film-award')) || card.dataset.ftype === f;
+      card.style.opacity = show ? '1' : '0.15';
+      card.style.transform = show ? '' : 'scale(0.95)';
+      card.style.pointerEvents = show ? 'auto' : 'none';
+    });
+  });
+});
+
+// ── SAVE / DELETE ───────────────────────────────────────────
+function saveAdminPanel() {
+  const data = getAdminFields();
+  if (currentEditType === 'card') saveCard(data);
+  else if (currentEditType === 'film') saveFilm(data);
+  else if (currentEditType === 'photo') savePhoto(data);
+  closeAdminPanel();
+  showToastMsg('Saved ❖');
+}
+function deleteAdminEntry() {
+  if (!currentEditTarget) return;
+  if (confirm('Delete this entry? This cannot be undone.')) { currentEditTarget.remove(); closeAdminPanel(); showToastMsg('Deleted'); }
+}
+function showToastMsg(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
+function rebindCursor() {
+  document.querySelectorAll('a,button,.portfolio-card,.skill-tag,.filter-tab,.film-tab,.client-logo,.photo-item,.film-card').forEach(el => {
+    el.addEventListener('mouseenter', () => { cursor.style.width='24px'; cursor.style.height='24px'; cursor.style.background='#FF3347'; });
+    el.addEventListener('mouseleave', () => { cursor.style.width='12px'; cursor.style.height='12px'; cursor.style.background='#E8001D'; });
+  });
+}
+// Close admin panel on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeAdminPanel(); closeLogin(); }
+});
+
+// ── INLINE CONTENT EDITING ────────────────────────────────────────────────
+// Toggle contenteditable on all [data-editable] elements when admin mode changes
+function enableInlineEdit() {
+  document.querySelectorAll('[data-editable]').forEach(el => {
+    el.contentEditable = 'true';
+    el.setAttribute('spellcheck', 'false');
+  });
+  document.querySelectorAll('.skill-tag .del-tag').forEach(el => el.style.display = 'inline-flex');
+  buildClientsEditor();
+}
+function disableInlineEdit() {
+  document.querySelectorAll('[data-editable]').forEach(el => {
+    el.contentEditable = 'false';
+  });
+  document.querySelectorAll('.skill-tag .del-tag').forEach(el => el.style.display = 'none');
+}
+
+// ── ADD SKILL TAG ─────────────────────────────────────────────────────────
+function addSkillTag(btn) {
+  const tag = document.createElement('span');
+  tag.className = 'skill-tag';
+  tag.innerHTML = '<span contenteditable="true" data-editable style="outline:none;min-width:40px;display:inline-block;" spellcheck="false">New Skill</span>'
+    + '<span class="del-tag" onclick="this.closest(\'.skill-tag\').remove()" title="Remove" style="display:inline-flex;">&#x2715;</span>';
+  btn.parentNode.insertBefore(tag, btn);
+  const editable = tag.querySelector('[contenteditable]');
+  editable.focus();
+  const range = document.createRange();
+  range.selectNodeContents(editable);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
+// ── ADD EXPERIENCE ────────────────────────────────────────────────────────
+function addExperience() {
+  const timeline = document.querySelector('.timeline');
+  const item = document.createElement('div');
+  item.className = 'timeline-item visible';
+  item.innerHTML =
+    '<button class="del-exp-btn" onclick="this.closest(\'.timeline-item\').remove()">&#x2715; Delete</button>'
+    + '<div class="timeline-date" contenteditable="true" data-editable spellcheck="false">Year — Year</div>'
+    + '<div class="timeline-role" contenteditable="true" data-editable spellcheck="false">Your Role</div>'
+    + '<div class="timeline-company" contenteditable="true" data-editable spellcheck="false">Company Name</div>'
+    + '<div class="timeline-desc" contenteditable="true" data-editable spellcheck="false">Describe your work here...</div>';
+  timeline.appendChild(item);
+  item.querySelector('.timeline-date').focus();
+}
+
+// ── CLIENTS EDITOR ────────────────────────────────────────────────────────
+const DEFAULT_CLIENTS = ['Lumina Co.','Vertex Studio','Aura Health','Forge Spaces','Nova Digital','Blank Page','Orbit Labs','Prism Agency','Keel Media','Dusk & Dawn','Archipelago','Sonder Brand'];
+let clientsList = [...DEFAULT_CLIENTS];
+
+function buildClientsEditor() {
+  const list = document.getElementById('clientsTagList');
+  list.innerHTML = '';
+  clientsList.forEach((name, i) => {
+    const tag = document.createElement('div');
+    tag.className = 'client-editable-tag';
+    const span = document.createElement('span');
+    span.contentEditable = 'true';
+    span.spellcheck = false;
+    span.textContent = name;
+    span.addEventListener('blur', () => { clientsList[i] = span.textContent.trim() || name; });
+    const del = document.createElement('button');
+    del.className = 'client-del-btn';
+    del.innerHTML = '&#x2715;';
+    del.title = 'Remove';
+    del.onclick = () => { clientsList.splice(i, 1); buildClientsEditor(); };
+    tag.appendChild(span); tag.appendChild(del);
+    list.appendChild(tag);
+  });
+}
+
+function addClientTag() {
+  clientsList.push('New Client');
+  buildClientsEditor();
+  // Focus the last one
+  setTimeout(() => {
+    const tags = document.querySelectorAll('.client-editable-tag span');
+    if (tags.length) { tags[tags.length - 1].focus(); selectAll(tags[tags.length - 1]); }
+  }, 50);
+}
+
+function applyClients() {
+  // Read current values from editor spans
+  clientsList = Array.from(document.querySelectorAll('.client-editable-tag span'))
+    .map(s => s.textContent.trim()).filter(Boolean);
+  // Rebuild marquee
+  const track = document.getElementById('clientsTrack');
+  track.innerHTML = '';
+  [...clientsList, ...clientsList].forEach(name => {
+    const div = document.createElement('div');
+    div.className = 'client-logo';
+    div.innerHTML = '<span class="client-name">' + name + '</span>';
+    track.appendChild(div);
+  });
+  showToastMsg('Clients marquee updated \u2756');
+  rebindCursor();
+}
+
+function selectAll(el) {
+  const range = document.createRange();
+  range.selectNodeContents(el);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
+// ── PERSISTENCE: SAVE & LOAD ALL EDITS TO LOCALSTORAGE ──────────────────
+
+const STORAGE_KEY = 'gerome_portfolio_content';
+
+/** Collect all current page data into one object */
+function collectPageData() {
+  const data = {};
+
+  // Editable text nodes
+  data.editables = [];
+  document.querySelectorAll('[data-editable]').forEach((el, i) => {
+    el.dataset.persistIdx = i;
+    data.editables.push({ idx: i, html: el.innerHTML });
+  });
+
+  // Skills list
+  data.skills = Array.from(document.querySelectorAll('.skill-tag')).map(tag => {
+    const clone = tag.cloneNode(true);
+    clone.querySelectorAll('.del-tag').forEach(d => d.remove());
+    return clone.textContent.trim();
+  });
+
+  // Experience / timeline
+  data.experience = Array.from(document.querySelectorAll('.timeline-item')).map(item => ({
+    date:    item.querySelector('.timeline-date')?.innerHTML  || '',
+    role:    item.querySelector('.timeline-role')?.innerHTML  || '',
+    company: item.querySelector('.timeline-company')?.innerHTML || '',
+    desc:    item.querySelector('.timeline-desc')?.innerHTML  || ''
+  }));
+
+  // Clients list
+  data.clients = Array.from(document.querySelectorAll('#clientsTrack .client-logo'))
+    .slice(0, Math.floor(document.querySelectorAll('#clientsTrack .client-logo').length / 2))
+    .map(el => el.querySelector('.client-name')?.textContent.trim())
+    .filter(Boolean);
+
+  // Portfolio cards (title, desc, tags)
+  data.cards = Array.from(document.querySelectorAll('.portfolio-card')).map(card => ({
+    title:    card.dataset.title    || '',
+    desc:     card.dataset.desc     || '',
+    tags:     card.dataset.tags     || '',
+    category: card.dataset.category || ''
+  }));
+
+  // Film cards
+  data.films = Array.from(document.querySelectorAll('.film-card')).map(card => ({
+    title:  card.querySelector('.film-title')?.textContent.trim()  || '',
+    role:   card.querySelector('.film-role')?.textContent.trim()   || '',
+    year:   card.querySelector('.film-year')?.textContent.trim()   || '',
+    type:   card.dataset.ftype || '',
+    award:  card.querySelector('.film-award')?.textContent.trim()  || '',
+    badge:  card.querySelector('.film-type-badge')?.className || '',
+    badgeTxt: card.querySelector('.film-type-badge')?.textContent.trim() || ''
+  }));
+
+  // Photo items
+  data.photos = Array.from(document.querySelectorAll('.photo-item')).map(item => ({
+    caption:  item.dataset.caption || '',
+    imageUrl: item.querySelector('img')?.src || '',
+    bgStyle:  item.querySelector('.photo-inner')?.getAttribute('style') || ''
+  }));
+
+  return data;
+}
+
+/** Save everything to localStorage */
+function persistAll() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(collectPageData()));
+  } catch(e) { console.warn('Could not save:', e); }
+}
+
+/** Restore the page from saved localStorage data */
+function restoreFromStorage() {
+  let saved;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    saved = JSON.parse(raw);
+  } catch(e) { return; }
+
+  // Restore editable text
+  if (saved.editables) {
+    document.querySelectorAll('[data-editable]').forEach((el, i) => {
+      const entry = saved.editables.find(e => e.idx === i);
+      if (entry) el.innerHTML = entry.html;
+    });
+  }
+
+  // Restore skills
+  if (saved.skills && saved.skills.length) {
+    const skillsList = document.querySelector('.skills-list');
+    if (skillsList) {
+      // Remove old tags (keep add-btn)
+      skillsList.querySelectorAll('.skill-tag').forEach(t => t.remove());
+      const addBtn = skillsList.querySelector('.add-skill-btn');
+      saved.skills.forEach(name => {
+        const tag = document.createElement('span');
+        tag.className = 'skill-tag';
+        tag.innerHTML = name + '<span class="del-tag" onclick="this.closest(\'.skill-tag\').remove()" title="Remove">&#x2715;</span>';
+        skillsList.insertBefore(tag, addBtn);
+      });
+    }
+  }
+
+  // Restore experience
+  if (saved.experience && saved.experience.length) {
+    const timeline = document.querySelector('.timeline');
+    if (timeline) {
+      timeline.querySelectorAll('.timeline-item').forEach(i => i.remove());
+      saved.experience.forEach(exp => {
+        const item = document.createElement('div');
+        item.className = 'timeline-item';
+        item.innerHTML =
+          '<button class="del-exp-btn" onclick="this.closest(\'.timeline-item\').remove()">&#x2715; Delete</button>'
+          + '<div class="timeline-date" contenteditable="false" data-editable>' + exp.date + '</div>'
+          + '<div class="timeline-role" contenteditable="false" data-editable>' + exp.role + '</div>'
+          + '<div class="timeline-company" contenteditable="false" data-editable>' + exp.company + '</div>'
+          + '<div class="timeline-desc" contenteditable="false" data-editable>' + exp.desc + '</div>';
+        timeline.appendChild(item);
+        observer.observe(item);
+      });
+    }
+  }
+
+  // Restore clients
+  if (saved.clients && saved.clients.length) {
+    clientsList = saved.clients;
+    const track = document.getElementById('clientsTrack');
+    if (track) {
+      track.innerHTML = '';
+      [...clientsList, ...clientsList].forEach(name => {
+        const div = document.createElement('div');
+        div.className = 'client-logo';
+        div.innerHTML = '<span class="client-name">' + name + '</span>';
+        track.appendChild(div);
+      });
+    }
+  }
+
+  // Restore card data attributes (title, desc, tags)
+  if (saved.cards && saved.cards.length) {
+    const cards = document.querySelectorAll('.portfolio-card');
+    saved.cards.forEach((c, i) => {
+      if (cards[i]) {
+        cards[i].dataset.title    = c.title;
+        cards[i].dataset.desc     = c.desc;
+        cards[i].dataset.tags     = c.tags;
+        cards[i].dataset.category = c.category;
+        const overlay = cards[i].querySelector('.card-overlay');
+        if (overlay) {
+          const h3 = overlay.querySelector('h3');
+          const cat = overlay.querySelector('.card-category');
+          if (h3) h3.textContent = c.title;
+          if (cat) cat.textContent = c.category;
+        }
+      }
+    });
+  }
+
+  rebindCursor();
+}
+
+/** Auto-save on any inline text change */
+function setupAutoSave() {
+  document.addEventListener('input', (e) => {
+    if (e.target.isContentEditable) {
+      clearTimeout(window._saveTimer);
+      window._saveTimer = setTimeout(persistAll, 800);
+    }
+  });
+}
+
+// ── HOOK INTO ADMIN LOGIN/LOGOUT ──────────────────────────────────────────
+// Patch the existing tryLogin function
+const _origTryLoginFn = window.tryLogin;
+window.tryLogin = function() {
+  const pw = document.getElementById('admin-password').value;
+  if (pw === ADMIN_PASSWORD) {
+    isAdmin = true;
+    document.body.classList.add('admin-mode');
+    closeLogin();
+    enableInlineEdit();
+    setupAutoSave();
+    showToastMsg('Admin mode active — click any text to edit it \u2756');
+    rebindCursor();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('admin-password').value = '';
+    document.getElementById('admin-password').focus();
+  }
+};
+
+// Patch saveAdminPanel to also persist
+const _origSaveAdmin = window.saveAdminPanel;
+window.saveAdminPanel = function() {
+  if (_origSaveAdmin) _origSaveAdmin();
+  else {
+    const data = getAdminFields();
+    if (currentEditType === 'card') saveCard(data);
+    else if (currentEditType === 'film') saveFilm(data);
+    else if (currentEditType === 'photo') savePhoto(data);
+    closeAdminPanel();
+    showToastMsg('Saved ❖');
+  }
+  persistAll();
+};
+
+// Patch applyClients to also persist
+const _origApplyClients = window.applyClients;
+window.applyClients = function() {
+  if (_origApplyClients) _origApplyClients();
+  persistAll();
+};
+
+// Add a "Save All Changes" floating button for admins, and a "Clear Saved Data" option
+function injectAdminSaveBar() {
+  const bar = document.createElement('div');
+  bar.id = 'admin-save-bar';
+  bar.style.cssText = `
+    display:none; position:fixed; bottom:28px; right:28px; z-index:500;
+    display:flex; flex-direction:column; gap:8px; align-items:flex-end;
+  `;
+  bar.innerHTML = `
+    <button onclick="persistAll();showToastMsg('All changes saved ✦')"
+      style="padding:12px 24px;background:#E8001D;border:none;border-radius:100px;
+             color:white;font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:700;
+             cursor:pointer;box-shadow:0 4px 20px rgba(232,0,29,0.4);transition:transform 0.2s;"
+      onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+      💾 Save All Changes
+    </button>
+    <button onclick="if(confirm('Clear all saved edits and reset to defaults?')){localStorage.removeItem('${STORAGE_KEY}');location.reload();}"
+      style="padding:8px 18px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+             border-radius:100px;color:#8A8A9E;font-family:'Inter',sans-serif;font-size:0.75rem;
+             cursor:pointer;letter-spacing:0.04em;">
+      ↺ Reset to defaults
+    </button>
+  `;
+  document.body.appendChild(bar);
+  // Show only in admin mode
+  const style = document.createElement('style');
+  style.textContent = 'body.admin-mode #admin-save-bar { display:flex !important; }';
+  document.head.appendChild(style);
+}
+
+// On page load: restore saved content, then set up save bar
+restoreFromStorage();
+injectAdminSaveBar();
+
+</script>
+
+<!-- ADMIN EDIT PANEL -->
+<div id="admin-panel">
+  <div class="admin-panel-card">
+    <button class="admin-close" onclick="closeAdminPanel()">&#x2715;</button>
+    <div class="admin-panel-title">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      <span id="panel-title-text">Edit Entry</span>
+    </div>
+    <div id="admin-fields"></div>
+    <div class="admin-actions">
+      <button class="btn-save" onclick="saveAdminPanel()">Save Changes</button>
+      <button class="btn-delete" id="btn-delete-entry" onclick="deleteAdminEntry()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div id="login-modal">
+  <div class="login-card">
+    <div class="login-logo">Gerome<span>.</span></div>
+    <div class="login-sub">Admin access &mdash; portfolio owner only</div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="admin-password" placeholder="Enter password" onkeydown="if(event.key==='Enter')tryLogin()">
+    </div>
+    <button class="login-btn" onclick="tryLogin()">Enter Admin Mode</button>
+    <div class="login-error" id="login-error">Incorrect password. Try again.</div>
+    <div style="margin-top:20px;">
+      <button onclick="closeLogin()" style="background:none;border:none;color:var(--muted);font-size:0.8rem;cursor:pointer;letter-spacing:0.05em;">Cancel &mdash; stay as visitor</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
