@@ -2048,6 +2048,7 @@ function saveAdminPanel() {
   if (currentEditType === 'card') saveCard(data);
   else if (currentEditType === 'film') saveFilm(data);
   else if (currentEditType === 'photo') savePhoto(data);
+  else if (currentEditType === 'reel') saveReel(data);
   closeAdminPanel();
   showToastMsg('Saved ❖');
 }
@@ -2057,7 +2058,7 @@ function deleteAdminEntry() {
 }
 function showToastMsg(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
 function rebindCursor() {
-  document.querySelectorAll('a,button,.portfolio-card,.skill-tag,.filter-tab,.film-tab,.client-logo,.photo-item,.film-card').forEach(el => {
+  document.querySelectorAll('a,button,.portfolio-card,.skill-tag,.filter-tab,.film-tab,.client-logo,.photo-item,.film-card,.reel-item').forEach(el => {
     el.addEventListener('mouseenter', () => { cursor.style.width='24px'; cursor.style.height='24px'; cursor.style.background='#FF3347'; });
     el.addEventListener('mouseleave', () => { cursor.style.width='12px'; cursor.style.height='12px'; cursor.style.background='#E8001D'; });
   });
@@ -2199,6 +2200,7 @@ function buildReelCard(r) {
   item.dataset.videoUrl = r.videoUrl || '';
   item.dataset.duration = r.duration || '';
   item.dataset.category = r.category || 'reel';
+  item.dataset.thumbUrl = r.thumbUrl || '';
 
   const thumbHtml = r.thumbUrl
     ? '<img src="' + r.thumbUrl + '" alt="' + (r.title||'') + '" loading="lazy">'
@@ -2357,13 +2359,15 @@ function saveReel(data) {
       }
     } else if (durEl) durEl.remove();
     if (data.thumbUrl) {
+      item.dataset.thumbUrl = data.thumbUrl;
       const thumb = item.querySelector('.reel-thumb');
       thumb.style.background = 'none';
       thumb.innerHTML = '<img src="' + data.thumbUrl + '" alt="' + data.title + '" loading="lazy">';
     }
   } else {
     const card = buildReelCard({ title: data.title, desc: data.desc, videoUrl: data.videoUrl, duration: data.duration, category: data.category, thumbUrl: data.thumbUrl });
-    document.getElementById('reelGrid').insertBefore(card, document.querySelector('.add-reel-btn'));
+    const rg = document.getElementById('reelGrid');
+    rg.insertBefore(card, rg.querySelector('.add-reel-btn'));
     observer.observe(card);
   }
   rebindCursor();
@@ -2584,7 +2588,7 @@ function collectPageData() {
     title:     item.dataset.title    || '',
     desc:      item.dataset.desc     || '',
     videoUrl:  item.dataset.videoUrl || '',
-    thumbUrl:  item.querySelector('img')?.src || '',
+    thumbUrl:  item.dataset.thumbUrl || item.querySelector('.reel-thumb img')?.src || '',
     duration:  item.dataset.duration  || '',
     category:  item.dataset.category  || ''
   }));
@@ -2969,6 +2973,7 @@ window.saveAdminPanel = async function() {
   if (currentEditType === 'card') saveCard(data);
   else if (currentEditType === 'film') saveFilm(data);
   else if (currentEditType === 'photo') savePhoto(data);
+  else if (currentEditType === 'reel') saveReel(data);
   closeAdminPanel();
   const ok = await persistAll();
   showToastMsg(ok ? 'Saved ✦' : '⚠ Save failed');
