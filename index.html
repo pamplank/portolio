@@ -1402,19 +1402,23 @@ function closeModal(e) { if (e.target === document.getElementById('modal-overlay
 function closeModalBtn() { document.getElementById('modal-overlay').classList.remove('open'); }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') document.getElementById('modal-overlay').classList.remove('open'); });
 
-// CLIENTS MARQUEE
-const clients = [
+// CLIENTS MARQUEE — default data, will be overridden by Supabase on load
+const DEFAULT_CLIENTS_DATA = [
   'Lumina Co.', 'Vertex Studio', 'Aura Health', 'Forge Spaces',
   'Nova Digital', 'Blank Page', 'Orbit Labs', 'Prism Agency',
   'Keel Media', 'Dusk & Dawn', 'Archipelago', 'Sonder Brand'
 ];
-const track = document.getElementById('clientsTrack');
-[...clients, ...clients].forEach(name => {
-  const div = document.createElement('div');
-  div.className = 'client-logo';
-  div.innerHTML = `<span class="client-name">${name}</span>`;
-  track.appendChild(div);
-});
+function buildMarquee(list) {
+  const track = document.getElementById('clientsTrack');
+  track.innerHTML = '';
+  [...list, ...list].forEach(name => {
+    const div = document.createElement('div');
+    div.className = 'client-logo';
+    div.innerHTML = `<span class="client-name">${name}</span>`;
+    track.appendChild(div);
+  });
+}
+buildMarquee(DEFAULT_CLIENTS_DATA);
 
 // CONTACT — sends to business.gerome@gmail.com via Formspree
 async function handleSubmit(e) {
@@ -1836,20 +1840,15 @@ function selectAll(el) {
   sel.addRange(range);
 }
 
+
 // ══════════════════════════════════════════════════════════════════════════
-// ── SUPABASE PERSISTENCE ──────────────────────────────────────────────────
+// ── SUPABASE PERSISTENCE (fixed) ─────────────────────────────────────────
 // ══════════════════════════════════════════════════════════════════════════
 
 const SUPA_URL = 'https://pbtarcnbzrkabfilrpwm.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBidGFyY25ienJrYWJmaWxycHdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwNTMzNTAsImV4cCI6MjA5NjYyOTM1MH0.dPiD4YVALY8a6F3OxqVUDE0WI84gDDo1ArxPRN1koRc';
-const SUPA_HEADERS = {
-  'Content-Type': 'application/json',
-  'apikey': SUPA_KEY,
-  'Authorization': 'Bearer ' + SUPA_KEY,
-  'Prefer': 'resolution=merge-duplicates'
-};
 
-/** Collect all current page content into one JSON object */
+// ── COLLECT: snapshot everything on the page ─────────────────────────────
 function collectPageData() {
   const data = {};
 
@@ -1859,12 +1858,12 @@ function collectPageData() {
     data.editables.push({ idx: i, html: el.innerHTML });
   });
 
-  // Skills tags
+  // Skills tags (strip the ✕ button text)
   data.skills = Array.from(document.querySelectorAll('.skill-tag')).map(tag => {
     const clone = tag.cloneNode(true);
     clone.querySelectorAll('.del-tag').forEach(d => d.remove());
     return clone.textContent.trim();
-  });
+  }).filter(Boolean);
 
   // Experience timeline
   data.experience = Array.from(document.querySelectorAll('.timeline-item')).map(item => ({
@@ -1874,10 +1873,10 @@ function collectPageData() {
     desc:    item.querySelector('.timeline-desc')?.innerHTML    || ''
   }));
 
-  // Clients marquee (only first half — the track is doubled)
+  // Clients marquee — only take the first half (track is doubled for loop)
   const allLogos = document.querySelectorAll('#clientsTrack .client-logo');
   data.clients = Array.from(allLogos)
-    .slice(0, Math.floor(allLogos.length / 2))
+    .slice(0, Math.ceil(allLogos.length / 2))
     .map(el => el.querySelector('.client-name')?.textContent.trim())
     .filter(Boolean);
 
@@ -1891,12 +1890,12 @@ function collectPageData() {
 
   // Film cards
   data.films = Array.from(document.querySelectorAll('.film-card')).map(card => ({
-    title:    card.querySelector('.film-title')?.textContent.trim()    || '',
-    role:     card.querySelector('.film-role')?.textContent.trim()     || '',
-    year:     card.querySelector('.film-year')?.textContent.trim()     || '',
+    title:    card.querySelector('.film-title')?.textContent.trim()     || '',
+    role:     card.querySelector('.film-role')?.textContent.trim()      || '',
+    year:     card.querySelector('.film-year')?.textContent.trim()      || '',
     ftype:    card.dataset.ftype || '',
-    award:    card.querySelector('.film-award')?.textContent.trim()    || '',
-    badgeCls: card.querySelector('.film-type-badge')?.className        || '',
+    award:    card.querySelector('.film-award')?.textContent.trim()     || '',
+    badgeCls: card.querySelector('.film-type-badge')?.className         || '',
     badgeTxt: card.querySelector('.film-type-badge')?.textContent.trim()|| ''
   }));
 
@@ -1910,47 +1909,79 @@ function collectPageData() {
   return data;
 }
 
-/** Save everything to Supabase */
+// ── SAVE: PATCH the existing row (row was pre-created in SQL setup) ───────
 async function persistAll() {
   try {
-    const payload = { id: 'main', data: collectPageData(), updated_at: new Date().toISOString() };
-    const res = await fetch(SUPA_URL + '/rest/v1/portfolio_content', {
-      method: 'POST',
-      headers: SUPA_HEADERS,
-      body: JSON.stringify(payload)
-    });
-    if (!res.ok) {
-      const err = await res.text();
-      console.error('Supabase save failed:', err);
-      showToastMsg('⚠ Save failed — check console');
+    const payload = { data: collectPageData(), updated_at: new Date().toISOString() };
+
+    // PATCH filters to id=main so it updates the existing row
+    const res = await fetch(
+      SUPA_URL + '/rest/v1/portfolio_content?id=eq.main',
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPA_KEY,
+          'Authorization': 'Bearer ' + SUPA_KEY,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(payload)
+      }
+    );
+
+    if (res.ok || res.status === 204) {
+      // success — 204 No Content is normal for PATCH with return=minimal
+      return true;
+    } else {
+      const errText = await res.text();
+      console.error('Supabase PATCH failed:', res.status, errText);
+      showToastMsg('⚠ Save failed (' + res.status + ') — see console');
+      return false;
     }
   } catch (e) {
-    console.error('Supabase error:', e);
+    console.error('Supabase network error:', e);
+    showToastMsg('⚠ Network error — changes not saved');
+    return false;
   }
 }
 
-/** Load saved content from Supabase and apply to the page */
+// ── LOAD: fetch the saved row and apply to DOM ────────────────────────────
 async function loadFromSupabase() {
   try {
-    const res = await fetch(SUPA_URL + '/rest/v1/portfolio_content?id=eq.main&select=data', {
-      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
-    });
-    if (!res.ok) return;
+    const res = await fetch(
+      SUPA_URL + '/rest/v1/portfolio_content?id=eq.main&select=data',
+      {
+        headers: {
+          'apikey': SUPA_KEY,
+          'Authorization': 'Bearer ' + SUPA_KEY
+        }
+      }
+    );
+
+    if (!res.ok) {
+      console.warn('Supabase load HTTP error:', res.status, await res.text());
+      return;
+    }
+
     const rows = await res.json();
-    if (!rows.length || !rows[0].data || !Object.keys(rows[0].data).length) return;
-    applyPageData(rows[0].data);
+    if (!rows.length) { console.warn('Supabase: no row found for id=main'); return; }
+    const saved = rows[0].data;
+    if (!saved || !Object.keys(saved).length) { console.log('Supabase: row exists but data is empty — using defaults'); return; }
+
+    applyPageData(saved);
+    console.log('Supabase: content loaded successfully');
   } catch (e) {
-    console.warn('Could not load from Supabase:', e);
+    console.warn('Supabase load failed:', e);
   }
 }
 
-/** Apply a saved data object to the live DOM */
+// ── APPLY: write saved data back onto the live DOM ────────────────────────
 function applyPageData(saved) {
-  // Editable text
-  if (saved.editables) {
+  // Editable text nodes
+  if (saved.editables && saved.editables.length) {
     document.querySelectorAll('[data-editable]').forEach((el, i) => {
       const entry = saved.editables.find(e => e.idx === i);
-      if (entry) el.innerHTML = entry.html;
+      if (entry && entry.html !== undefined) el.innerHTML = entry.html;
     });
   }
 
@@ -1961,15 +1992,16 @@ function applyPageData(saved) {
       skillsList.querySelectorAll('.skill-tag').forEach(t => t.remove());
       const addBtn = skillsList.querySelector('.add-skill-btn');
       saved.skills.forEach(name => {
+        if (!name) return;
         const tag = document.createElement('span');
         tag.className = 'skill-tag';
         tag.innerHTML = name + '<span class="del-tag" onclick="this.closest(\'.skill-tag\').remove()" title="Remove">&#x2715;</span>';
-        skillsList.insertBefore(tag, addBtn);
+        skillsList.insertBefore(tag, addBtn || null);
       });
     }
   }
 
-  // Experience
+  // Experience timeline
   if (saved.experience && saved.experience.length) {
     const timeline = document.querySelector('.timeline');
     if (timeline) {
@@ -1979,71 +2011,89 @@ function applyPageData(saved) {
         item.className = 'timeline-item';
         item.innerHTML =
           '<button class="del-exp-btn" onclick="this.closest(\'.timeline-item\').remove()">&#x2715; Delete</button>'
-          + '<div class="timeline-date" contenteditable="false" data-editable>' + exp.date    + '</div>'
-          + '<div class="timeline-role" contenteditable="false" data-editable>' + exp.role    + '</div>'
-          + '<div class="timeline-company" contenteditable="false" data-editable>' + exp.company + '</div>'
-          + '<div class="timeline-desc" contenteditable="false" data-editable>' + exp.desc   + '</div>';
+          + '<div class="timeline-date" contenteditable="false" data-editable>'    + (exp.date    || '') + '</div>'
+          + '<div class="timeline-role" contenteditable="false" data-editable>'    + (exp.role    || '') + '</div>'
+          + '<div class="timeline-company" contenteditable="false" data-editable>' + (exp.company || '') + '</div>'
+          + '<div class="timeline-desc" contenteditable="false" data-editable>'    + (exp.desc    || '') + '</div>';
         timeline.appendChild(item);
         observer.observe(item);
       });
     }
   }
 
-  // Clients
+  // Clients marquee — rebuild with saved list
   if (saved.clients && saved.clients.length) {
     clientsList = saved.clients;
-    const track = document.getElementById('clientsTrack');
-    if (track) {
-      track.innerHTML = '';
-      [...clientsList, ...clientsList].forEach(name => {
-        const div = document.createElement('div');
-        div.className = 'client-logo';
-        div.innerHTML = '<span class="client-name">' + name + '</span>';
-        track.appendChild(div);
-      });
-    }
+    buildMarquee(clientsList);
   }
 
-  // Portfolio cards
+  // Portfolio cards — restore title/desc/tags/category
   if (saved.cards && saved.cards.length) {
     document.querySelectorAll('.portfolio-card').forEach((card, i) => {
-      if (!saved.cards[i]) return;
       const c = saved.cards[i];
+      if (!c) return;
       card.dataset.title    = c.title;
       card.dataset.desc     = c.desc;
       card.dataset.tags     = c.tags;
       card.dataset.category = c.category;
-      const h3  = card.querySelector('.card-overlay h3');
+      const h3  = card.querySelector('.card-overlay h3, .card-title');
       const cat = card.querySelector('.card-category');
       if (h3)  h3.textContent  = c.title;
       if (cat) cat.textContent = c.category;
     });
   }
 
+  // Film cards
+  if (saved.films && saved.films.length) {
+    document.querySelectorAll('.film-card').forEach((card, i) => {
+      const f = saved.films[i];
+      if (!f) return;
+      const title = card.querySelector('.film-title');
+      const role  = card.querySelector('.film-role');
+      const year  = card.querySelector('.film-year');
+      const badge = card.querySelector('.film-type-badge');
+      if (title) title.textContent = f.title;
+      if (role)  role.textContent  = f.role;
+      if (year)  year.textContent  = f.year;
+      if (badge) { badge.className = f.badgeCls; badge.textContent = f.badgeTxt; }
+    });
+  }
+
+  // Photo captions
+  if (saved.photos && saved.photos.length) {
+    document.querySelectorAll('.photo-item').forEach((item, i) => {
+      const p = saved.photos[i];
+      if (!p) return;
+      item.dataset.caption = p.caption;
+      const cap = item.querySelector('.photo-caption');
+      if (cap) cap.textContent = p.caption;
+    });
+  }
+
   rebindCursor();
 }
 
-/** Auto-save while editing (debounced 1 s) */
+// ── AUTO-SAVE: debounced 1.2s after any inline edit ──────────────────────
+let _autoSaveSetup = false;
 function setupAutoSave() {
+  if (_autoSaveSetup) return;
+  _autoSaveSetup = true;
   document.addEventListener('input', e => {
-    if (e.target.isContentEditable) {
-      clearTimeout(window._saveTimer);
-      window._saveTimer = setTimeout(() => {
-        persistAll();
-        showToastMsg('Saved to database ✦');
-      }, 1000);
-    }
+    if (!e.target.isContentEditable) return;
+    clearTimeout(window._saveTimer);
+    window._saveTimer = setTimeout(async () => {
+      const ok = await persistAll();
+      if (ok) showToastMsg('Auto-saved ✦');
+    }, 1200);
   });
 }
 
-/** Floating admin save bar */
+// ── ADMIN SAVE BAR (floating bottom-right in admin mode) ──────────────────
 function injectAdminSaveBar() {
   const bar = document.createElement('div');
   bar.id = 'admin-save-bar';
   bar.innerHTML = `
-    <button id="btn-save-all"
-      onclick="persistAll().then(()=>showToastMsg('Saved to database ✦'))"
-      title="Save all changes to Supabase">
+    <button id="btn-save-all" onclick="handleManualSave()" title="Save all changes to Supabase">
       💾 Save All Changes
     </button>
     <button id="btn-reset-db"
@@ -2057,8 +2107,7 @@ function injectAdminSaveBar() {
   const style = document.createElement('style');
   style.textContent = `
     #admin-save-bar {
-      display: none;
-      position: fixed; bottom: 28px; right: 28px;
+      display: none; position: fixed; bottom: 28px; right: 28px;
       z-index: 500; flex-direction: column; gap: 8px; align-items: flex-end;
     }
     body.admin-mode #admin-save-bar { display: flex; }
@@ -2080,20 +2129,33 @@ function injectAdminSaveBar() {
   document.head.appendChild(style);
 }
 
-/** Overwrite DB row with empty data to reset */
+async function handleManualSave() {
+  const btn = document.getElementById('btn-save-all');
+  if (btn) { btn.textContent = '⏳ Saving…'; btn.disabled = true; }
+  const ok = await persistAll();
+  if (btn) { btn.textContent = '💾 Save All Changes'; btn.disabled = false; }
+  showToastMsg(ok ? 'Saved to database ✦' : '⚠ Save failed — check console');
+}
+
+// ── RESET: wipe DB row back to empty so defaults reload ──────────────────
 async function resetDatabase() {
   try {
-    await fetch(SUPA_URL + '/rest/v1/portfolio_content', {
-      method: 'POST',
-      headers: SUPA_HEADERS,
-      body: JSON.stringify({ id: 'main', data: {}, updated_at: new Date().toISOString() })
+    await fetch(SUPA_URL + '/rest/v1/portfolio_content?id=eq.main', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ data: {}, updated_at: new Date().toISOString() })
     });
     showToastMsg('Reset done — reloading…');
     setTimeout(() => location.reload(), 1500);
-  } catch(e) { console.error(e); }
+  } catch(e) { console.error('Reset failed:', e); }
 }
 
-// ── HOOK ADMIN LOGIN to enable editing + auto-save ────────────────────────
+// ── ADMIN LOGIN HOOK ──────────────────────────────────────────────────────
 window.tryLogin = function() {
   const pw = document.getElementById('admin-password').value;
   if (pw === ADMIN_PASSWORD) {
@@ -2111,29 +2173,37 @@ window.tryLogin = function() {
   }
 };
 
-// ── HOOK saveAdminPanel to also persist ───────────────────────────────────
-const _origSaveAdminPanel = saveAdminPanel;
-window.saveAdminPanel = function() {
+// ── HOOK: admin panel Save Changes button also persists ───────────────────
+// We redefine saveAdminPanel entirely to call persistAll after
+const _origSaveAdminPanel = window.saveAdminPanel;
+window.saveAdminPanel = async function() {
   const data = getAdminFields();
   if (currentEditType === 'card') saveCard(data);
   else if (currentEditType === 'film') saveFilm(data);
   else if (currentEditType === 'photo') savePhoto(data);
   closeAdminPanel();
-  showToastMsg('Saved ❖');
-  persistAll();
+  const ok = await persistAll();
+  showToastMsg(ok ? 'Saved ✦' : '⚠ Save failed');
 };
 
-// ── HOOK applyClients to also persist ────────────────────────────────────
-const _origApplyClients = applyClients;
-window.applyClients = function() {
-  _origApplyClients();
-  persistAll();
-  showToastMsg('Clients updated & saved ✦');
+// ── HOOK: applyClients (clients editor Update Marquee button) ─────────────
+// Capture BEFORE overriding so we call the original marquee rebuild
+const _baseApplyClients = window.applyClients;
+window.applyClients = async function() {
+  // Read current editor spans into clientsList
+  clientsList = Array.from(document.querySelectorAll('.client-editable-tag span'))
+    .map(s => s.textContent.trim()).filter(Boolean);
+  // Rebuild the marquee track
+  buildMarquee(clientsList);
+  // Save to Supabase
+  const ok = await persistAll();
+  showToastMsg(ok ? 'Clients updated & saved ✦' : '⚠ Clients save failed');
+  rebindCursor();
 };
 
-// ── BOOT: load saved content then set up UI ───────────────────────────────
+// ── BOOT ─────────────────────────────────────────────────────────────────
 injectAdminSaveBar();
-loadFromSupabase();
+loadFromSupabase(); // async — applies saved content as soon as Supabase responds
 
 </script>
 
