@@ -909,6 +909,205 @@
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
   }
+
+  /* ── VIDEO REEL SECTION ───────────────────────────────────────── */
+  #reel { background: var(--navy-mid); }
+  .reel-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .reel-item {
+    background: var(--navy-light);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: none;
+    transition: border-color 0.3s, transform 0.3s;
+    position: relative;
+  }
+  .reel-item:hover { border-color: rgba(232,0,29,0.35); transform: translateY(-4px); }
+
+  /* Thumbnail */
+  .reel-thumb-wrap {
+    position: relative;
+    aspect-ratio: 16/9;
+    overflow: hidden;
+    background: var(--navy);
+  }
+  .reel-thumb {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .reel-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .reel-thumb::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.3);
+    transition: background 0.3s;
+  }
+  .reel-item:hover .reel-thumb::after { background: rgba(0,0,0,0.15); }
+
+  /* Play button overlay */
+  .reel-play-btn {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(1);
+    width: 56px; height: 56px;
+    background: var(--red);
+    border: none; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    z-index: 3;
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+    box-shadow: 0 4px 24px rgba(232,0,29,0.5);
+  }
+  .reel-play-btn svg { margin-left: 3px; }
+  .reel-item:hover .reel-play-btn {
+    transform: translate(-50%, -50%) scale(1.1);
+    box-shadow: 0 8px 36px rgba(232,0,29,0.65);
+  }
+
+  /* Duration badge */
+  .reel-duration-badge {
+    position: absolute; bottom: 10px; right: 12px;
+    background: rgba(0,0,0,0.72);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 0.72rem;
+    color: var(--off-white);
+    letter-spacing: 0.04em;
+    z-index: 3;
+  }
+
+  /* Info section */
+  .reel-info { padding: 20px; }
+  .reel-category-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    background: rgba(232,0,29,0.12);
+    color: var(--red-light);
+    border: 1px solid rgba(232,0,29,0.25);
+  }
+  .reel-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--off-white);
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  .reel-desc {
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+
+  /* Add reel button */
+  .add-reel-btn {
+    display: none;
+    border-radius: 16px;
+    background: rgba(232,0,29,0.05);
+    border: 2px dashed rgba(232,0,29,0.3);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-height: 220px;
+    aspect-ratio: auto;
+  }
+  body.admin-mode .add-reel-btn { display: flex; }
+  .add-reel-btn:hover { background: rgba(232,0,29,0.1); border-color: var(--red); }
+
+  /* ── VIDEO PLAYER MODAL ───────────────────────────────────────── */
+  #reel-player-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    z-index: 800;
+    background: rgba(0,0,0,0.92);
+    backdrop-filter: blur(16px);
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  #reel-player-overlay.open {
+    display: flex;
+    opacity: 1;
+  }
+  .reel-player-card {
+    background: var(--navy-light);
+    border: 1px solid rgba(232,0,29,0.2);
+    border-radius: 20px;
+    overflow: hidden;
+    width: 90%;
+    max-width: 900px;
+    position: relative;
+    transform: scale(0.93);
+    transition: transform 0.3s;
+  }
+  #reel-player-overlay.open .reel-player-card { transform: scale(1); }
+  .reel-player-close {
+    position: absolute; top: 14px; right: 14px; z-index: 10;
+    background: rgba(0,0,0,0.55);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 50%;
+    width: 36px; height: 36px;
+    color: var(--off-white); font-size: 1rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  .reel-player-close:hover { background: var(--red); border-color: var(--red); }
+  .reel-player-title-bar {
+    padding: 18px 24px 0;
+  }
+  .reel-player-category {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--red-light);
+    margin-bottom: 4px;
+  }
+  .reel-player-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--off-white);
+    margin-bottom: 14px;
+  }
+  /* Responsive 16:9 embed container */
+  .reel-player-viewport {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: #000;
+    overflow: hidden;
+  }
+  .reel-player-viewport iframe,
+  .reel-player-viewport video {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    border: none;
+  }
+  .reel-player-desc {
+    padding: 14px 24px 20px;
+    font-size: 0.85rem;
+    line-height: 1.65;
+    color: var(--muted);
+  }
+
+  /* Mobile reel */
+  @media (max-width: 768px) {
+    .reel-grid { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
@@ -929,6 +1128,7 @@
     <li><a href="#about">About</a></li>
     <li><a href="#work">Work</a></li>
     <li><a href="#film">Film</a></li>
+    <li><a href="#reel">Reel</a></li>
     <li><a href="#photography">Photography</a></li>
     <li><a href="#experience">Experience</a></li>
     <li><a href="#clients">Clients</a></li>
@@ -1186,6 +1386,55 @@
     </button>
   </div>
 </section>
+
+<!-- VIDEO REEL -->
+<section id="reel" style="position:relative;">
+  <div class="section-admin-toolbar"><button class="toolbar-btn" onclick="openAddReel()">+ Add Reel</button></div>
+  <div class="section-label reveal">Video Reel</div>
+  <h2 class="section-title reveal" contenteditable="false" data-editable data-persist-id="reel-title">Motion work,<br>reels &amp; showreels.</h2>
+  <div class="reel-grid" id="reelGrid">
+    <!-- Default placeholder reel card -->
+    <div class="reel-item reveal"
+      data-title="Showreel 2024"
+      data-desc="A curated collection of motion design, broadcast packages, and animation work from 2024."
+      data-video-url="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+      data-duration="2:45"
+      data-category="showreel">
+      <button class="admin-edit-btn" onclick="editReel(this.closest('.reel-item'),event)">&#x270E; Edit</button>
+      <div class="reel-thumb-wrap">
+        <div class="reel-thumb" style="background:linear-gradient(135deg,#1a0309,#3b0714,#1e0b1b);">
+          <svg width="56" height="56" viewBox="0 0 56 56" fill="none" style="position:relative;z-index:1;opacity:0.45;"><circle cx="28" cy="28" r="24" stroke="white" stroke-width="1.5" fill="none"/><polygon points="22,18 42,28 22,38" fill="white" opacity="0.7"/></svg>
+        </div>
+        <button class="reel-play-btn" onclick="openReelPlayer(this.closest('.reel-item'))">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
+        </button>
+        <div class="reel-duration-badge">2:45</div>
+      </div>
+      <div class="reel-info">
+        <div class="reel-category-badge">Showreel</div>
+        <div class="reel-title">Showreel 2024</div>
+        <div class="reel-desc">A curated collection of motion design, broadcast packages, and animation work from 2024.</div>
+      </div>
+    </div>
+    <button class="add-reel-btn" onclick="openAddReel()">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E8001D" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      <span>Add Reel</span>
+    </button>
+  </div>
+</section>
+
+<!-- VIDEO PLAYER MODAL -->
+<div id="reel-player-overlay" onclick="closeReelPlayer(event)">
+  <div class="reel-player-card">
+    <button class="reel-player-close" onclick="closeReelPlayerBtn()">&#x2715;</button>
+    <div class="reel-player-title-bar">
+      <div class="reel-player-category" id="rp-category"></div>
+      <div class="reel-player-name" id="rp-title"></div>
+    </div>
+    <div class="reel-player-viewport" id="rp-viewport"></div>
+    <div class="reel-player-desc" id="rp-desc"></div>
+  </div>
+</div>
 
 <!-- PHOTOGRAPHY -->
 <section id="photography" style="position:relative;">
@@ -1936,6 +2185,189 @@ function selectAll(el) {
   sel.addRange(range);
 }
 
+
+// ══════════════════════════════════════════════════════════════════════════
+// ── VIDEO REEL ────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════
+
+// ── REEL CARD BUILDER ───────────────────────────────────────────────────
+function buildReelCard(r) {
+  const item = document.createElement('div');
+  item.className = 'reel-item reveal';
+  item.dataset.title    = r.title    || '';
+  item.dataset.desc     = r.desc     || '';
+  item.dataset.videoUrl = r.videoUrl || '';
+  item.dataset.duration = r.duration || '';
+  item.dataset.category = r.category || 'reel';
+
+  const thumbHtml = r.thumbUrl
+    ? '<img src="' + r.thumbUrl + '" alt="' + (r.title||'') + '" loading="lazy">'
+    : '<svg width="56" height="56" viewBox="0 0 56 56" fill="none" style="position:relative;z-index:1;opacity:0.45;"><circle cx="28" cy="28" r="24" stroke="white" stroke-width="1.5" fill="none"/><polygon points="22,18 42,28 22,38" fill="white" opacity="0.7"/></svg>';
+  const bgStyle = r.thumbUrl ? '' : 'background:linear-gradient(135deg,#1a0309,#3b0714,#1e0b1b);';
+  const durBadge = r.duration ? '<div class="reel-duration-badge">' + r.duration + '</div>' : '';
+  const catLabel = r.category ? r.category.charAt(0).toUpperCase() + r.category.slice(1) : 'Reel';
+
+  item.innerHTML =
+    '<button class="admin-edit-btn" onclick="editReel(this.closest(\'.reel-item\'),event)">&#x270E; Edit</button>'
+    + '<div class="reel-thumb-wrap">'
+    +   '<div class="reel-thumb" style="' + bgStyle + '">' + thumbHtml + '</div>'
+    +   '<button class="reel-play-btn" onclick="openReelPlayer(this.closest(\'.reel-item\'))">'
+    +     '<svg width="22" height="22" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>'
+    +   '</button>'
+    +   durBadge
+    + '</div>'
+    + '<div class="reel-info">'
+    +   '<div class="reel-category-badge">' + catLabel + '</div>'
+    +   '<div class="reel-title">' + (r.title||'Untitled') + '</div>'
+    +   '<div class="reel-desc">' + (r.desc||'') + '</div>'
+    + '</div>';
+
+  item.querySelector('.reel-play-btn').addEventListener('mouseenter', () => { cursor.style.width='24px'; cursor.style.height='24px'; cursor.style.background='#FF3347'; });
+  item.querySelector('.reel-play-btn').addEventListener('mouseleave', () => { cursor.style.width='12px'; cursor.style.height='12px'; cursor.style.background='#E8001D'; });
+
+  return item;
+}
+
+// ── VIDEO URL PARSER ─────────────────────────────────────────────────────
+// Returns { type: 'youtube'|'vimeo'|'direct', id, embedUrl }
+function parseVideoUrl(url) {
+  if (!url) return null;
+  url = url.trim();
+
+  // YouTube: various formats
+  let yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  if (yt) return { type: 'youtube', id: yt[1], embedUrl: 'https://www.youtube-nocookie.com/embed/' + yt[1] + '?autoplay=1&rel=0&modestbranding=1' };
+
+  // Vimeo
+  let vi = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  if (vi) return { type: 'vimeo', id: vi[1], embedUrl: 'https://player.vimeo.com/video/' + vi[1] + '?autoplay=1&dnt=1' };
+
+  // Direct video file (.mp4 .webm .mov)
+  if (/\.(mp4|webm|mov|ogg)(\?|$)/i.test(url)) return { type: 'direct', embedUrl: url };
+
+  return null;
+}
+
+// ── OPEN PLAYER ──────────────────────────────────────────────────────────
+function openReelPlayer(item) {
+  if (isAdmin) return; // don't open player in admin mode — edit instead
+  const videoUrl  = item.dataset.videoUrl;
+  const title     = item.dataset.title || '';
+  const desc      = item.dataset.desc  || '';
+  const category  = item.dataset.category || 'Reel';
+
+  document.getElementById('rp-category').textContent = category.charAt(0).toUpperCase() + category.slice(1);
+  document.getElementById('rp-title').textContent    = title;
+  document.getElementById('rp-desc').textContent     = desc;
+
+  const viewport = document.getElementById('rp-viewport');
+  viewport.innerHTML = '';
+
+  const parsed = parseVideoUrl(videoUrl);
+  if (!parsed) {
+    viewport.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-size:0.9rem;">No video URL set.</div>';
+  } else if (parsed.type === 'direct') {
+    const vid = document.createElement('video');
+    vid.src = parsed.embedUrl;
+    vid.controls = true;
+    vid.autoplay = true;
+    vid.style.width = '100%';
+    vid.style.height = '100%';
+    viewport.appendChild(vid);
+  } else {
+    // Lazy iframe — only created when player opens, destroyed on close → no page weight
+    const iframe = document.createElement('iframe');
+    iframe.src = parsed.embedUrl;
+    iframe.allow = 'autoplay; fullscreen; picture-in-picture';
+    iframe.allowFullscreen = true;
+    viewport.appendChild(iframe);
+  }
+
+  const overlay = document.getElementById('reel-player-overlay');
+  overlay.style.display = 'flex';
+  requestAnimationFrame(() => overlay.classList.add('open'));
+  document.body.style.overflow = 'hidden';
+}
+
+function closeReelPlayerBtn() {
+  _destroyReelPlayer();
+}
+function closeReelPlayer(e) {
+  if (e.target === document.getElementById('reel-player-overlay')) _destroyReelPlayer();
+}
+function _destroyReelPlayer() {
+  const overlay = document.getElementById('reel-player-overlay');
+  overlay.classList.remove('open');
+  // Destroy iframe/video to stop playback immediately
+  setTimeout(() => {
+    document.getElementById('rp-viewport').innerHTML = '';
+    overlay.style.display = 'none';
+  }, 300);
+  document.body.style.overflow = '';
+}
+
+// ── ADMIN: EDIT / ADD REEL ───────────────────────────────────────────────
+function editReel(item, e) {
+  e && e.stopPropagation();
+  if (!isAdmin) return;
+  openAdminPanel('reel', [
+    { key:'title',    label:'Reel Title',                value: item.dataset.title    || '' },
+    { key:'category', label:'Category', type:'select',   value: item.dataset.category || 'showreel',
+      options: [{v:'showreel',l:'Showreel'},{v:'motion',l:'Motion Design'},{v:'broadcast',l:'Broadcast'},{v:'branding',l:'Branding'},{v:'social',l:'Social / Campaign'},{v:'film',l:'Film'},{v:'other',l:'Other'}] },
+    { key:'videoUrl', label:'Video URL (YouTube, Vimeo, or .mp4 link)', placeholder:'https://youtube.com/watch?v=...', value: item.dataset.videoUrl || '' },
+    { key:'duration', label:'Duration (e.g. 2:45)', placeholder:'2:45', value: item.dataset.duration || '' },
+    { key:'desc',     label:'Description', type:'textarea', value: item.dataset.desc || '' },
+    { key:'thumbUrl', label:'Thumbnail Image', type:'image-upload', value: item.querySelector('.reel-thumb img')?.src || '',
+      hints: { res:'1280×720', aspect:'16:9', size:'2 MB' } }
+  ], item);
+}
+function openAddReel() {
+  if (!isAdmin) return;
+  openAdminPanel('reel', [
+    { key:'title',    label:'Reel Title',    placeholder:'My Showreel 2024' },
+    { key:'category', label:'Category', type:'select',
+      options: [{v:'showreel',l:'Showreel'},{v:'motion',l:'Motion Design'},{v:'broadcast',l:'Broadcast'},{v:'branding',l:'Branding'},{v:'social',l:'Social / Campaign'},{v:'film',l:'Film'},{v:'other',l:'Other'}] },
+    { key:'videoUrl', label:'Video URL (YouTube, Vimeo, or .mp4 link)', placeholder:'https://youtube.com/watch?v=...' },
+    { key:'duration', label:'Duration (e.g. 2:45)', placeholder:'2:45' },
+    { key:'desc',     label:'Description', type:'textarea', placeholder:'Short description of this reel...' },
+    { key:'thumbUrl', label:'Thumbnail Image', type:'image-upload',
+      hints: { res:'1280×720', aspect:'16:9', size:'2 MB' } }
+  ], null);
+}
+function saveReel(data) {
+  if (currentEditTarget) {
+    // Update existing reel card
+    const item = currentEditTarget;
+    item.dataset.title    = data.title;
+    item.dataset.desc     = data.desc;
+    item.dataset.videoUrl = data.videoUrl;
+    item.dataset.duration = data.duration;
+    item.dataset.category = data.category;
+    item.querySelector('.reel-title').textContent = data.title;
+    item.querySelector('.reel-desc').textContent  = data.desc;
+    item.querySelector('.reel-category-badge').textContent = data.category.charAt(0).toUpperCase() + data.category.slice(1);
+    const durEl = item.querySelector('.reel-duration-badge');
+    if (data.duration) {
+      if (durEl) durEl.textContent = data.duration;
+      else {
+        const badge = document.createElement('div');
+        badge.className = 'reel-duration-badge';
+        badge.textContent = data.duration;
+        item.querySelector('.reel-thumb-wrap').appendChild(badge);
+      }
+    } else if (durEl) durEl.remove();
+    if (data.thumbUrl) {
+      const thumb = item.querySelector('.reel-thumb');
+      thumb.style.background = 'none';
+      thumb.innerHTML = '<img src="' + data.thumbUrl + '" alt="' + data.title + '" loading="lazy">';
+    }
+  } else {
+    const card = buildReelCard({ title: data.title, desc: data.desc, videoUrl: data.videoUrl, duration: data.duration, category: data.category, thumbUrl: data.thumbUrl });
+    document.getElementById('reelGrid').insertBefore(card, document.querySelector('.add-reel-btn'));
+    observer.observe(card);
+  }
+  rebindCursor();
+}
 
 // ══════════════════════════════════════════════════════════════════════════
 // ── SUPABASE PERSISTENCE (fixed) ─────────────────────────────────────────
