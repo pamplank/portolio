@@ -860,6 +860,45 @@
     white-space: nowrap;
   }
   body.admin-mode .edit-hint-bar { display: block; }
+
+  /* IMAGE UPLOAD FIELD */
+  .img-upload-wrap { display:flex; flex-direction:column; gap:10px; }
+  .img-upload-dropzone {
+    border: 2px dashed rgba(232,0,29,0.35); border-radius:12px;
+    padding: 24px 16px; text-align:center; cursor:pointer;
+    transition: border-color 0.2s, background 0.2s; position:relative;
+    background: rgba(255,255,255,0.02);
+  }
+  .img-upload-dropzone:hover, .img-upload-dropzone.drag-over {
+    border-color: var(--red); background: rgba(232,0,29,0.06);
+  }
+  .img-upload-dropzone input[type=file] {
+    position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%;
+  }
+  .img-upload-icon { font-size:1.8rem; margin-bottom:6px; }
+  .img-upload-label { font-size:0.85rem; color:var(--off-white); font-weight:500; }
+  .img-upload-hint { font-size:0.72rem; color:var(--muted); margin-top:4px; line-height:1.5; }
+  .img-upload-preview {
+    display:none; position:relative; border-radius:10px; overflow:hidden;
+    background: var(--navy); aspect-ratio:16/9;
+  }
+  .img-upload-preview img { width:100%; height:100%; object-fit:cover; display:block; }
+  .img-upload-preview .img-remove-btn {
+    position:absolute; top:8px; right:8px; background:rgba(0,0,0,0.7);
+    border:1px solid rgba(255,255,255,0.2); border-radius:50%; width:28px; height:28px;
+    color:white; font-size:0.8rem; cursor:pointer; display:flex; align-items:center;
+    justify-content:center; transition:background 0.2s;
+  }
+  .img-upload-preview .img-remove-btn:hover { background:var(--red); }
+  .img-upload-progress {
+    display:none; height:4px; border-radius:100px; background:rgba(255,255,255,0.08);
+    overflow:hidden; margin-top:4px;
+  }
+  .img-upload-progress-bar {
+    height:100%; background:var(--red); width:0%; transition:width 0.3s;
+    border-radius:100px;
+  }
+  .img-upload-status { font-size:0.75rem; color:var(--muted); text-align:center; }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
   }
@@ -1522,13 +1561,31 @@ function openAdminPanel(type, fields, target) {
         if ((f.value || '') === (opt.v || opt)) o.selected = true;
         input.appendChild(o);
       });
+    } else if (f.type === 'image-upload') {
+      // Image upload widget — no <input> value; URL stored in dataset.uploadedUrl
+      div.dataset.field = f.key;
+      div.dataset.uploadedUrl = f.value || '';
+      const hints = f.hints || {};
+      // Defer widget build until after appended to DOM
+      div._imageUploadField = true;
+      div._imageHints = hints;
+      div._imageExisting = f.value || '';
+      input = null; // handled separately below
     } else {
       input = document.createElement('input');
       input.type = f.type || 'text'; input.value = f.value || ''; input.placeholder = f.placeholder || '';
     }
-    input.dataset.field = f.key; div.appendChild(input); container.appendChild(div);
+    if (input) { input.dataset.field = f.key; div.appendChild(input); }
+    container.appendChild(div);
   });
   document.getElementById('admin-panel').classList.add('open');
+  // Init any image-upload widgets
+  container.querySelectorAll('[data-field]').forEach(div => {
+    if (!div._imageUploadField) return;
+    buildImageUploadWidget(div, div._imageHints, div._imageExisting, url => {
+      div.dataset.uploadedUrl = url;
+    });
+  });
 }
 function closeAdminPanel() {
   document.getElementById('admin-panel').classList.remove('open');
@@ -1536,7 +1593,13 @@ function closeAdminPanel() {
 }
 function getAdminFields() {
   const r = {};
-  document.querySelectorAll('#admin-fields [data-field]').forEach(el => { r[el.dataset.field] = el.value; });
+  document.querySelectorAll('#admin-fields [data-field]').forEach(el => {
+    if (el._imageUploadField) {
+      r[el.dataset.field] = el.dataset.uploadedUrl || '';
+    } else {
+      r[el.dataset.field] = el.value;
+    }
+  });
   return r;
 }
 
@@ -1551,7 +1614,7 @@ function editCard(card, e) {
     { key:'tags', label:'Tags (comma-separated)', value:card.dataset.tags },
     { key:'featured', label:'Featured (wide card)', type:'select', value:card.classList.contains('featured')?'yes':'no', options:['no','yes'] },
     { key:'linkUrl', label:'Link URL (optional)', value:'', placeholder:'https://...' },
-    { key:'imageUrl', label:'Image URL (leave blank to keep)', value:'', placeholder:'https://...' }
+    { key:'imageUrl', label:'Project Image', type:'image-upload', value: card.querySelector('.card-visual img')?.src||'', hints:{ res:'1280×960', aspect:'4:3 or 16:9', size:'2 MB' } }
   ], card);
 }
 function openAddCard() {
@@ -1563,7 +1626,7 @@ function openAddCard() {
     { key:'tags', label:'Tags (comma-separated)', placeholder:'After Effects, Motion Design' },
     { key:'featured', label:'Featured (wide card)', type:'select', options:['no','yes'] },
     { key:'linkUrl', label:'Link URL (optional)', placeholder:'https://...' },
-    { key:'imageUrl', label:'Image URL (optional)', placeholder:'https://...' }
+    { key:'imageUrl', label:'Project Image', type:'image-upload', hints:{ res:'1280×960', aspect:'4:3 or 16:9', size:'2 MB' } }
   ], null);
 }
 function saveCard(data) {
@@ -1621,7 +1684,7 @@ function editFilm(card, e) {
     { key:'role', label:'Your Role', value:card.querySelector('.film-role').textContent },
     { key:'award', label:'Award / Festival (optional)', value:awardText },
     { key:'year', label:'Year & Duration', value:card.querySelector('.film-year').textContent },
-    { key:'imageUrl', label:'Poster Image URL (optional)', value:'', placeholder:'https://...' }
+    { key:'imageUrl', label:'Poster Image', type:'image-upload', value: card.querySelector('.film-poster img')?.src||'', hints:{ res:'600×900', aspect:'2:3 (portrait)', size:'2 MB' } }
   ], card);
 }
 function openAddFilm() {
@@ -1632,7 +1695,7 @@ function openAddFilm() {
     { key:'role', label:'Your Role', placeholder:'Director & Editor' },
     { key:'award', label:'Award / Festival (optional)', placeholder:'Best Film — Festival 2024' },
     { key:'year', label:'Year & Duration', placeholder:'2024 · 15 min' },
-    { key:'imageUrl', label:'Poster Image URL (optional)', placeholder:'https://...' }
+    { key:'imageUrl', label:'Poster Image', type:'image-upload', hints:{ res:'600×900', aspect:'2:3 (portrait)', size:'2 MB' } }
   ], null);
 }
 function saveFilm(data) {
@@ -1676,14 +1739,14 @@ function editPhoto(item, e) {
   if (!isAdmin) return;
   openAdminPanel('photo', [
     { key:'caption', label:'Caption', value:item.dataset.caption||'' },
-    { key:'imageUrl', label:'Image URL (leave blank to keep)', value:'', placeholder:'https://...' }
+    { key:'imageUrl', label:'Photo', type:'image-upload', value: item.querySelector('img')?.src||'', hints:{ res:'1600×1200', aspect:'Any', size:'2 MB' } }
   ], item);
 }
 function openAddPhoto() {
   if (!isAdmin) return;
   openAdminPanel('photo', [
     { key:'caption', label:'Caption', placeholder:'Location / Year' },
-    { key:'imageUrl', label:'Image URL', placeholder:'https://...' }
+    { key:'imageUrl', label:'Photo', type:'image-upload', hints:{ res:'1600×1200', aspect:'Any', size:'2 MB' } }
   ], null);
 }
 function savePhoto(data) {
@@ -1863,6 +1926,146 @@ function selectAll(el) {
 
 const SUPA_URL = 'https://pbtarcnbzrkabfilrpwm.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBidGFyY25ienJrYWJmaWxycHdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwNTMzNTAsImV4cCI6MjA5NjYyOTM1MH0.dPiD4YVALY8a6F3OxqVUDE0WI84gDDo1ArxPRN1koRc';
+// ── SUPABASE STORAGE: upload image and return public URL ────────────────────
+const SUPA_BUCKET = 'portfolio-images'; // create this bucket in Supabase dashboard
+
+async function uploadImageToSupabase(file) {
+  const ext  = file.name.split('.').pop().toLowerCase();
+  const name = 'img_' + Date.now() + '_' + Math.random().toString(36).slice(2,7) + '.' + ext;
+  const path = name;
+
+  const res = await fetch(
+    SUPA_URL + '/storage/v1/object/' + SUPA_BUCKET + '/' + path,
+    {
+      method: 'POST',
+      headers: {
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Content-Type': file.type,
+        'x-upsert': 'true'
+      },
+      body: file
+    }
+  );
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error('Upload failed (' + res.status + '): ' + err);
+  }
+
+  // Build public URL
+  return SUPA_URL + '/storage/v1/object/public/' + SUPA_BUCKET + '/' + path;
+}
+
+// ── BUILD IMAGE UPLOAD WIDGET ────────────────────────────────────────────────
+// hints: { size, res, aspect } e.g. { size:'2 MB', res:'1920×1080', aspect:'16:9' }
+// existingUrl: currently saved image URL (shown as preview)
+// onUploaded(url): callback when upload completes
+function buildImageUploadWidget(container, hints, existingUrl, onUploaded) {
+  const hintText = [
+    hints.res    ? 'Recommended: ' + hints.res : '',
+    hints.aspect ? 'Aspect ratio: ' + hints.aspect : '',
+    hints.size   ? 'Max size: ' + hints.size : '',
+    'JPG, PNG or WebP'
+  ].filter(Boolean).join(' · ');
+
+  container.innerHTML = `
+    <div class="img-upload-wrap">
+      <div class="img-upload-preview" id="iupv_${container.dataset.field}">
+        <img src="" alt="preview">
+        <button class="img-remove-btn" type="button" title="Remove image">✕</button>
+      </div>
+      <div class="img-upload-dropzone" id="iudz_${container.dataset.field}">
+        <input type="file" accept="image/jpeg,image/png,image/webp">
+        <div class="img-upload-icon">🖼</div>
+        <div class="img-upload-label">Click to upload or drag & drop</div>
+        <div class="img-upload-hint">${hintText}</div>
+      </div>
+      <div class="img-upload-progress" id="iupr_${container.dataset.field}">
+        <div class="img-upload-progress-bar"></div>
+      </div>
+      <div class="img-upload-status" id="iust_${container.dataset.field}"></div>
+    </div>
+  `;
+
+  const preview  = container.querySelector('.img-upload-preview');
+  const previewImg = preview.querySelector('img');
+  const dropzone = container.querySelector('.img-upload-dropzone');
+  const fileInput = dropzone.querySelector('input[type=file]');
+  const progress = container.querySelector('.img-upload-progress');
+  const bar      = container.querySelector('.img-upload-progress-bar');
+  const status   = container.querySelector('.img-upload-status');
+  const removeBtn= preview.querySelector('.img-remove-btn');
+
+  // Show existing image if any
+  if (existingUrl) {
+    previewImg.src = existingUrl;
+    preview.style.display = 'block';
+    dropzone.style.display = 'none';
+    container.dataset.uploadedUrl = existingUrl;
+    onUploaded(existingUrl);
+  }
+
+  removeBtn.addEventListener('click', () => {
+    preview.style.display = 'none';
+    dropzone.style.display = 'block';
+    previewImg.src = '';
+    container.dataset.uploadedUrl = '';
+    fileInput.value = '';
+    onUploaded('');
+  });
+
+  // Drag-over highlight
+  dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
+  dropzone.addEventListener('drop', e => { e.preventDefault(); dropzone.classList.remove('drag-over'); handleFile(e.dataTransfer.files[0]); });
+
+  fileInput.addEventListener('change', () => handleFile(fileInput.files[0]));
+
+  async function handleFile(file) {
+    if (!file) return;
+
+    // Size check (2 MB = 2097152 bytes)
+    const maxBytes = 2 * 1024 * 1024;
+    if (file.size > maxBytes) {
+      status.textContent = '⚠ File too large — max 2 MB';
+      status.style.color = '#FF3347';
+      return;
+    }
+    if (!['image/jpeg','image/png','image/webp'].includes(file.type)) {
+      status.textContent = '⚠ Only JPG, PNG or WebP allowed';
+      status.style.color = '#FF3347';
+      return;
+    }
+
+    status.textContent = 'Uploading…';
+    status.style.color = 'var(--muted)';
+    progress.style.display = 'block';
+    bar.style.width = '30%';
+
+    try {
+      bar.style.width = '60%';
+      const url = await uploadImageToSupabase(file);
+      bar.style.width = '100%';
+      setTimeout(() => { progress.style.display = 'none'; bar.style.width = '0%'; }, 600);
+
+      previewImg.src = url;
+      preview.style.display = 'block';
+      dropzone.style.display = 'none';
+      container.dataset.uploadedUrl = url;
+      status.textContent = '✓ Uploaded';
+      status.style.color = '#4ade80';
+      onUploaded(url);
+    } catch(err) {
+      bar.style.width = '0%';
+      progress.style.display = 'none';
+      status.textContent = '⚠ ' + err.message;
+      status.style.color = '#FF3347';
+      console.error('Image upload error:', err);
+    }
+  }
+}
+
 
 // ── COLLECT: snapshot everything on the page ─────────────────────────────
 function collectPageData() {
@@ -1901,7 +2104,10 @@ function collectPageData() {
     title:    card.dataset.title    || '',
     desc:     card.dataset.desc     || '',
     tags:     card.dataset.tags     || '',
-    category: card.dataset.category || ''
+    category: card.dataset.category || '',
+    featured: card.classList.contains('featured') ? 'yes' : 'no',
+    imageUrl: card.querySelector('.card-visual img')?.src || '',
+    linkUrl:  card.querySelector('.card-link')?.href || ''
   }));
 
   // Film cards
@@ -1912,7 +2118,8 @@ function collectPageData() {
     ftype:    card.dataset.ftype || '',
     award:    card.querySelector('.film-award')?.textContent.trim()     || '',
     badgeCls: card.querySelector('.film-type-badge')?.className         || '',
-    badgeTxt: card.querySelector('.film-type-badge')?.textContent.trim()|| ''
+    badgeTxt: card.querySelector('.film-type-badge')?.textContent.trim()|| '',
+    imageUrl: card.querySelector('.film-poster img')?.src               || ''
   }));
 
   // Photo items
@@ -2043,7 +2250,7 @@ function applyPageData(saved) {
     buildMarquee(clientsList);
   }
 
-  // Portfolio cards — restore title/desc/tags/category
+  // Portfolio cards — restore title/desc/tags/category/featured/image/link
   if (saved.cards && saved.cards.length) {
     document.querySelectorAll('.portfolio-card').forEach((card, i) => {
       const c = saved.cards[i];
@@ -2052,14 +2259,24 @@ function applyPageData(saved) {
       card.dataset.desc     = c.desc;
       card.dataset.tags     = c.tags;
       card.dataset.category = c.category;
+      if (c.featured === 'yes') card.classList.add('featured');
+      else card.classList.remove('featured');
       const h3  = card.querySelector('.card-overlay h3, .card-title');
       const cat = card.querySelector('.card-category');
       if (h3)  h3.textContent  = c.title;
       if (cat) cat.textContent = c.category;
+      if (c.imageUrl) {
+        const vis = card.querySelector('.card-visual');
+        if (vis) vis.innerHTML = '<img src="' + c.imageUrl + '" alt="' + c.title + '" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:0;">';
+      }
+      if (c.linkUrl) {
+        const lnk = card.querySelector('.card-link');
+        if (lnk) { lnk.href = c.linkUrl; lnk.removeAttribute('onclick'); }
+      }
     });
   }
 
-  // Film cards
+  // Film cards — restore all fields including image
   if (saved.films && saved.films.length) {
     document.querySelectorAll('.film-card').forEach((card, i) => {
       const f = saved.films[i];
@@ -2072,10 +2289,14 @@ function applyPageData(saved) {
       if (role)  role.textContent  = f.role;
       if (year)  year.textContent  = f.year;
       if (badge) { badge.className = f.badgeCls; badge.textContent = f.badgeTxt; }
+      if (f.imageUrl) {
+        const poster = card.querySelector('.film-poster');
+        if (poster) { poster.style.background = 'none'; poster.innerHTML = '<img src="' + f.imageUrl + '" alt="' + (f.title||'') + '" style="width:100%;height:100%;object-fit:cover;">'; }
+      }
     });
   }
 
-  // Photo captions
+  // Photo items — restore caption and image
   if (saved.photos && saved.photos.length) {
     document.querySelectorAll('.photo-item').forEach((item, i) => {
       const p = saved.photos[i];
@@ -2083,6 +2304,10 @@ function applyPageData(saved) {
       item.dataset.caption = p.caption;
       const cap = item.querySelector('.photo-caption');
       if (cap) cap.textContent = p.caption;
+      if (p.imageUrl) {
+        const inner = item.querySelector('.photo-inner');
+        if (inner) { inner.style.background = 'none'; inner.innerHTML = '<img src="' + p.imageUrl + '" alt="' + (p.caption||'') + '" style="width:100%;height:100%;object-fit:cover;">'; }
+      }
     });
   }
 
