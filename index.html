@@ -116,7 +116,7 @@
     display: flex;
     align-items: center;
     position: relative;
-    padding: 120px 60px 80px;
+    padding: 120px 20% 80px;
     overflow: hidden;
   }
   .hero-bg {
@@ -215,7 +215,7 @@
   .btn-ghost:hover { color: var(--off-white); }
   .hero-scroll-hint {
     position: absolute;
-    bottom: 40px; left: 60px;
+    bottom: 40px; left: 20%;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -244,7 +244,10 @@
   @keyframes scanline { to { left: 100%; } }
 
   /* SECTION BASE */
-  section { padding: 120px 60px; position: relative; }
+  section { padding: 120px 20%; position: relative; }
+
+  /* Contact reverted to original tight padding */
+  #contact { padding-left: 60px !important; padding-right: 60px !important; }
   .section-label {
     font-size: 0.75rem;
     letter-spacing: 0.15em;
@@ -442,7 +445,7 @@
   .timeline-desc { font-size: 0.9rem; line-height: 1.7; color: var(--muted); max-width: 600px; }
 
   /* CLIENTS */
-  #clients { padding: 80px 60px; }
+  #clients { padding: 80px 20%; }
   .clients-header { text-align: center; margin-bottom: 60px; }
   .clients-header .section-label { justify-content: center; }
   .clients-header .section-label::before { display: none; }
@@ -483,8 +486,8 @@
   .client-logo:hover .client-name { color: var(--off-white); }
 
   /* CONTACT */
-  #contact { background: var(--navy-light); text-align: center; padding-left: 20%; padding-right: 20%; }
-  .contact-inner { max-width: 100%; margin: 0 auto; }
+  #contact { background: var(--navy-light); text-align: center; }
+  .contact-inner { max-width: 640px; margin: 0 auto; }
   .contact-inner .section-label { justify-content: center; }
   .contact-inner .section-label::before { display: none; }
   .contact-tagline { font-size: 1.05rem; line-height: 1.7; color: var(--muted); margin-bottom: 56px; }
@@ -635,7 +638,9 @@
     nav { padding: 20px 24px; }
     .nav-links { display: none; }
     section { padding: 80px 24px; }
+    #contact { padding-left: 24px !important; padding-right: 24px !important; }
     #hero { padding: 100px 24px 60px; }
+    .hero-scroll-hint { left: 24px; }
     .hero-scroll-hint { left: 24px; }
     .about-grid { grid-template-columns: 1fr; gap: 40px; }
     .portfolio-grid { grid-template-columns: 1fr; }
@@ -1421,7 +1426,7 @@ async function handleSubmit(e) {
   const message = document.getElementById('fmsg').value.trim();
   btn.textContent = 'Sending…'; btn.disabled = true;
   try {
-    const res = await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+    const res = await fetch('https://formspree.io/f/xrevlpje', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({ name, email, projectType: type, message })
