@@ -1402,12 +1402,9 @@ async function handleSubmit(e) {
   const email   = document.getElementById('femail').value.trim();
   const type    = document.getElementById('ftype').value;
   const message = document.getElementById('fmsg').value.trim();
-
   btn.textContent = 'Sending…'; btn.disabled = true;
-
   try {
     const res = await fetch('https://formspree.io/f/xrevlpje', {
-      // ↑ Replace YOUR_FORM_ID with the ID from formspree.io (free signup, takes 2 min)
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({ name, email, projectType: type, message })
@@ -1817,43 +1814,52 @@ function selectAll(el) {
   sel.addRange(range);
 }
 
-// ── PERSISTENCE: SAVE & LOAD ALL EDITS TO LOCALSTORAGE ──────────────────
+// ══════════════════════════════════════════════════════════════════════════
+// ── SUPABASE PERSISTENCE ──────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════
 
-const STORAGE_KEY = 'gerome_portfolio_content';
+const SUPA_URL = 'https://pbtarcnbzrkabfilrpwm.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBidGFyY25ienJrYWJmaWxycHdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwNTMzNTAsImV4cCI6MjA5NjYyOTM1MH0.dPiD4YVALY8a6F3OxqVUDE0WI84gDDo1ArxPRN1koRc';
+const SUPA_HEADERS = {
+  'Content-Type': 'application/json',
+  'apikey': SUPA_KEY,
+  'Authorization': 'Bearer ' + SUPA_KEY,
+  'Prefer': 'resolution=merge-duplicates'
+};
 
-/** Collect all current page data into one object */
+/** Collect all current page content into one JSON object */
 function collectPageData() {
   const data = {};
 
-  // Editable text nodes
+  // All inline-editable text nodes
   data.editables = [];
   document.querySelectorAll('[data-editable]').forEach((el, i) => {
-    el.dataset.persistIdx = i;
     data.editables.push({ idx: i, html: el.innerHTML });
   });
 
-  // Skills list
+  // Skills tags
   data.skills = Array.from(document.querySelectorAll('.skill-tag')).map(tag => {
     const clone = tag.cloneNode(true);
     clone.querySelectorAll('.del-tag').forEach(d => d.remove());
     return clone.textContent.trim();
   });
 
-  // Experience / timeline
+  // Experience timeline
   data.experience = Array.from(document.querySelectorAll('.timeline-item')).map(item => ({
-    date:    item.querySelector('.timeline-date')?.innerHTML  || '',
-    role:    item.querySelector('.timeline-role')?.innerHTML  || '',
+    date:    item.querySelector('.timeline-date')?.innerHTML    || '',
+    role:    item.querySelector('.timeline-role')?.innerHTML    || '',
     company: item.querySelector('.timeline-company')?.innerHTML || '',
-    desc:    item.querySelector('.timeline-desc')?.innerHTML  || ''
+    desc:    item.querySelector('.timeline-desc')?.innerHTML    || ''
   }));
 
-  // Clients list
-  data.clients = Array.from(document.querySelectorAll('#clientsTrack .client-logo'))
-    .slice(0, Math.floor(document.querySelectorAll('#clientsTrack .client-logo').length / 2))
+  // Clients marquee (only first half — the track is doubled)
+  const allLogos = document.querySelectorAll('#clientsTrack .client-logo');
+  data.clients = Array.from(allLogos)
+    .slice(0, Math.floor(allLogos.length / 2))
     .map(el => el.querySelector('.client-name')?.textContent.trim())
     .filter(Boolean);
 
-  // Portfolio cards (title, desc, tags)
+  // Portfolio cards
   data.cards = Array.from(document.querySelectorAll('.portfolio-card')).map(card => ({
     title:    card.dataset.title    || '',
     desc:     card.dataset.desc     || '',
@@ -1863,13 +1869,13 @@ function collectPageData() {
 
   // Film cards
   data.films = Array.from(document.querySelectorAll('.film-card')).map(card => ({
-    title:  card.querySelector('.film-title')?.textContent.trim()  || '',
-    role:   card.querySelector('.film-role')?.textContent.trim()   || '',
-    year:   card.querySelector('.film-year')?.textContent.trim()   || '',
-    type:   card.dataset.ftype || '',
-    award:  card.querySelector('.film-award')?.textContent.trim()  || '',
-    badge:  card.querySelector('.film-type-badge')?.className || '',
-    badgeTxt: card.querySelector('.film-type-badge')?.textContent.trim() || ''
+    title:    card.querySelector('.film-title')?.textContent.trim()    || '',
+    role:     card.querySelector('.film-role')?.textContent.trim()     || '',
+    year:     card.querySelector('.film-year')?.textContent.trim()     || '',
+    ftype:    card.dataset.ftype || '',
+    award:    card.querySelector('.film-award')?.textContent.trim()    || '',
+    badgeCls: card.querySelector('.film-type-badge')?.className        || '',
+    badgeTxt: card.querySelector('.film-type-badge')?.textContent.trim()|| ''
   }));
 
   // Photo items
@@ -1882,23 +1888,43 @@ function collectPageData() {
   return data;
 }
 
-/** Save everything to localStorage */
-function persistAll() {
+/** Save everything to Supabase */
+async function persistAll() {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(collectPageData()));
-  } catch(e) { console.warn('Could not save:', e); }
+    const payload = { id: 'main', data: collectPageData(), updated_at: new Date().toISOString() };
+    const res = await fetch(SUPA_URL + '/rest/v1/portfolio_content', {
+      method: 'POST',
+      headers: SUPA_HEADERS,
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      console.error('Supabase save failed:', err);
+      showToastMsg('⚠ Save failed — check console');
+    }
+  } catch (e) {
+    console.error('Supabase error:', e);
+  }
 }
 
-/** Restore the page from saved localStorage data */
-function restoreFromStorage() {
-  let saved;
+/** Load saved content from Supabase and apply to the page */
+async function loadFromSupabase() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    saved = JSON.parse(raw);
-  } catch(e) { return; }
+    const res = await fetch(SUPA_URL + '/rest/v1/portfolio_content?id=eq.main&select=data', {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    });
+    if (!res.ok) return;
+    const rows = await res.json();
+    if (!rows.length || !rows[0].data || !Object.keys(rows[0].data).length) return;
+    applyPageData(rows[0].data);
+  } catch (e) {
+    console.warn('Could not load from Supabase:', e);
+  }
+}
 
-  // Restore editable text
+/** Apply a saved data object to the live DOM */
+function applyPageData(saved) {
+  // Editable text
   if (saved.editables) {
     document.querySelectorAll('[data-editable]').forEach((el, i) => {
       const entry = saved.editables.find(e => e.idx === i);
@@ -1906,11 +1932,10 @@ function restoreFromStorage() {
     });
   }
 
-  // Restore skills
+  // Skills
   if (saved.skills && saved.skills.length) {
     const skillsList = document.querySelector('.skills-list');
     if (skillsList) {
-      // Remove old tags (keep add-btn)
       skillsList.querySelectorAll('.skill-tag').forEach(t => t.remove());
       const addBtn = skillsList.querySelector('.add-skill-btn');
       saved.skills.forEach(name => {
@@ -1922,7 +1947,7 @@ function restoreFromStorage() {
     }
   }
 
-  // Restore experience
+  // Experience
   if (saved.experience && saved.experience.length) {
     const timeline = document.querySelector('.timeline');
     if (timeline) {
@@ -1932,17 +1957,17 @@ function restoreFromStorage() {
         item.className = 'timeline-item';
         item.innerHTML =
           '<button class="del-exp-btn" onclick="this.closest(\'.timeline-item\').remove()">&#x2715; Delete</button>'
-          + '<div class="timeline-date" contenteditable="false" data-editable>' + exp.date + '</div>'
-          + '<div class="timeline-role" contenteditable="false" data-editable>' + exp.role + '</div>'
+          + '<div class="timeline-date" contenteditable="false" data-editable>' + exp.date    + '</div>'
+          + '<div class="timeline-role" contenteditable="false" data-editable>' + exp.role    + '</div>'
           + '<div class="timeline-company" contenteditable="false" data-editable>' + exp.company + '</div>'
-          + '<div class="timeline-desc" contenteditable="false" data-editable>' + exp.desc + '</div>';
+          + '<div class="timeline-desc" contenteditable="false" data-editable>' + exp.desc   + '</div>';
         timeline.appendChild(item);
         observer.observe(item);
       });
     }
   }
 
-  // Restore clients
+  // Clients
   if (saved.clients && saved.clients.length) {
     clientsList = saved.clients;
     const track = document.getElementById('clientsTrack');
@@ -1957,42 +1982,96 @@ function restoreFromStorage() {
     }
   }
 
-  // Restore card data attributes (title, desc, tags)
+  // Portfolio cards
   if (saved.cards && saved.cards.length) {
-    const cards = document.querySelectorAll('.portfolio-card');
-    saved.cards.forEach((c, i) => {
-      if (cards[i]) {
-        cards[i].dataset.title    = c.title;
-        cards[i].dataset.desc     = c.desc;
-        cards[i].dataset.tags     = c.tags;
-        cards[i].dataset.category = c.category;
-        const overlay = cards[i].querySelector('.card-overlay');
-        if (overlay) {
-          const h3 = overlay.querySelector('h3');
-          const cat = overlay.querySelector('.card-category');
-          if (h3) h3.textContent = c.title;
-          if (cat) cat.textContent = c.category;
-        }
-      }
+    document.querySelectorAll('.portfolio-card').forEach((card, i) => {
+      if (!saved.cards[i]) return;
+      const c = saved.cards[i];
+      card.dataset.title    = c.title;
+      card.dataset.desc     = c.desc;
+      card.dataset.tags     = c.tags;
+      card.dataset.category = c.category;
+      const h3  = card.querySelector('.card-overlay h3');
+      const cat = card.querySelector('.card-category');
+      if (h3)  h3.textContent  = c.title;
+      if (cat) cat.textContent = c.category;
     });
   }
 
   rebindCursor();
 }
 
-/** Auto-save on any inline text change */
+/** Auto-save while editing (debounced 1 s) */
 function setupAutoSave() {
-  document.addEventListener('input', (e) => {
+  document.addEventListener('input', e => {
     if (e.target.isContentEditable) {
       clearTimeout(window._saveTimer);
-      window._saveTimer = setTimeout(persistAll, 800);
+      window._saveTimer = setTimeout(() => {
+        persistAll();
+        showToastMsg('Saved to database ✦');
+      }, 1000);
     }
   });
 }
 
-// ── HOOK INTO ADMIN LOGIN/LOGOUT ──────────────────────────────────────────
-// Patch the existing tryLogin function
-const _origTryLoginFn = window.tryLogin;
+/** Floating admin save bar */
+function injectAdminSaveBar() {
+  const bar = document.createElement('div');
+  bar.id = 'admin-save-bar';
+  bar.innerHTML = `
+    <button id="btn-save-all"
+      onclick="persistAll().then(()=>showToastMsg('Saved to database ✦'))"
+      title="Save all changes to Supabase">
+      💾 Save All Changes
+    </button>
+    <button id="btn-reset-db"
+      onclick="if(confirm('Reset all content back to defaults? This cannot be undone.')){resetDatabase()}"
+      title="Reset to original defaults">
+      ↺ Reset to defaults
+    </button>
+  `;
+  document.body.appendChild(bar);
+
+  const style = document.createElement('style');
+  style.textContent = `
+    #admin-save-bar {
+      display: none;
+      position: fixed; bottom: 28px; right: 28px;
+      z-index: 500; flex-direction: column; gap: 8px; align-items: flex-end;
+    }
+    body.admin-mode #admin-save-bar { display: flex; }
+    #btn-save-all {
+      padding: 12px 24px; background: #E8001D; border: none; border-radius: 100px;
+      color: white; font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 700;
+      cursor: pointer; box-shadow: 0 4px 20px rgba(232,0,29,0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    #btn-save-all:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(232,0,29,0.5); }
+    #btn-reset-db {
+      padding: 8px 18px; background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 100px;
+      color: #8A8A9E; font-family: 'Inter', sans-serif; font-size: 0.75rem;
+      cursor: pointer; letter-spacing: 0.04em; transition: color 0.2s;
+    }
+    #btn-reset-db:hover { color: #F0EDE6; }
+  `;
+  document.head.appendChild(style);
+}
+
+/** Overwrite DB row with empty data to reset */
+async function resetDatabase() {
+  try {
+    await fetch(SUPA_URL + '/rest/v1/portfolio_content', {
+      method: 'POST',
+      headers: SUPA_HEADERS,
+      body: JSON.stringify({ id: 'main', data: {}, updated_at: new Date().toISOString() })
+    });
+    showToastMsg('Reset done — reloading…');
+    setTimeout(() => location.reload(), 1500);
+  } catch(e) { console.error(e); }
+}
+
+// ── HOOK ADMIN LOGIN to enable editing + auto-save ────────────────────────
 window.tryLogin = function() {
   const pw = document.getElementById('admin-password').value;
   if (pw === ADMIN_PASSWORD) {
@@ -2010,61 +2089,29 @@ window.tryLogin = function() {
   }
 };
 
-// Patch saveAdminPanel to also persist
-const _origSaveAdmin = window.saveAdminPanel;
+// ── HOOK saveAdminPanel to also persist ───────────────────────────────────
+const _origSaveAdminPanel = saveAdminPanel;
 window.saveAdminPanel = function() {
-  if (_origSaveAdmin) _origSaveAdmin();
-  else {
-    const data = getAdminFields();
-    if (currentEditType === 'card') saveCard(data);
-    else if (currentEditType === 'film') saveFilm(data);
-    else if (currentEditType === 'photo') savePhoto(data);
-    closeAdminPanel();
-    showToastMsg('Saved ❖');
-  }
+  const data = getAdminFields();
+  if (currentEditType === 'card') saveCard(data);
+  else if (currentEditType === 'film') saveFilm(data);
+  else if (currentEditType === 'photo') savePhoto(data);
+  closeAdminPanel();
+  showToastMsg('Saved ❖');
   persistAll();
 };
 
-// Patch applyClients to also persist
-const _origApplyClients = window.applyClients;
+// ── HOOK applyClients to also persist ────────────────────────────────────
+const _origApplyClients = applyClients;
 window.applyClients = function() {
-  if (_origApplyClients) _origApplyClients();
+  _origApplyClients();
   persistAll();
+  showToastMsg('Clients updated & saved ✦');
 };
 
-// Add a "Save All Changes" floating button for admins, and a "Clear Saved Data" option
-function injectAdminSaveBar() {
-  const bar = document.createElement('div');
-  bar.id = 'admin-save-bar';
-  bar.style.cssText = `
-    display:none; position:fixed; bottom:28px; right:28px; z-index:500;
-    display:flex; flex-direction:column; gap:8px; align-items:flex-end;
-  `;
-  bar.innerHTML = `
-    <button onclick="persistAll();showToastMsg('All changes saved ✦')"
-      style="padding:12px 24px;background:#E8001D;border:none;border-radius:100px;
-             color:white;font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:700;
-             cursor:pointer;box-shadow:0 4px 20px rgba(232,0,29,0.4);transition:transform 0.2s;"
-      onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
-      💾 Save All Changes
-    </button>
-    <button onclick="if(confirm('Clear all saved edits and reset to defaults?')){localStorage.removeItem('${STORAGE_KEY}');location.reload();}"
-      style="padding:8px 18px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
-             border-radius:100px;color:#8A8A9E;font-family:'Inter',sans-serif;font-size:0.75rem;
-             cursor:pointer;letter-spacing:0.04em;">
-      ↺ Reset to defaults
-    </button>
-  `;
-  document.body.appendChild(bar);
-  // Show only in admin mode
-  const style = document.createElement('style');
-  style.textContent = 'body.admin-mode #admin-save-bar { display:flex !important; }';
-  document.head.appendChild(style);
-}
-
-// On page load: restore saved content, then set up save bar
-restoreFromStorage();
+// ── BOOT: load saved content then set up UI ───────────────────────────────
 injectAdminSaveBar();
+loadFromSupabase();
 
 </script>
 
