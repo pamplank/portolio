@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gerome Viñas — Creative Portfolio</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
 <style>
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -949,6 +950,39 @@
   body.admin-mode .del-exp-btn { display: block; }
   .del-exp-btn:hover { background: rgba(232,0,29,0.35); color: white; }
   body.admin-mode .timeline-item { position: relative; padding-right: 80px; }
+
+  /* ── DRAG & DROP ─────────────────────────────────────────── */
+  .drag-handle {
+    display: none;
+    position: absolute;
+    top: 10px; left: 10px;
+    width: 28px; height: 28px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 7px;
+    align-items: center; justify-content: center;
+    cursor: grab;
+    z-index: 20;
+    transition: background 0.2s, border-color 0.2s;
+    color: rgba(255,255,255,0.45);
+    font-size: 14px;
+    line-height: 1;
+    user-select: none;
+  }
+  .drag-handle:hover { background: rgba(232,0,29,0.25); border-color: rgba(232,0,29,0.5); color: white; }
+  .drag-handle:active { cursor: grabbing; }
+  body.admin-mode .drag-handle { display: flex; }
+  /* Timeline drag handle sits differently due to layout */
+  .timeline-item .drag-handle { top: 16px; left: -36px; }
+  /* Sortable ghost/chosen states */
+  .sortable-ghost {
+    opacity: 0.35 !important;
+    outline: 2px dashed rgba(232,0,29,0.5);
+    outline-offset: 2px;
+    border-radius: 12px;
+  }
+  .sortable-chosen { box-shadow: 0 20px 50px rgba(0,0,0,0.6) !important; transform: scale(1.02) !important; z-index: 100 !important; position: relative; }
+  .sortable-drag { opacity: 1 !important; }
   /* clients edit panel */
   #clients-editor {
     display: none; margin-top: 40px; background: rgba(255,255,255,0.03);
@@ -1373,6 +1407,8 @@
   <div class="portfolio-grid" id="portfolioGrid">
     <div class="portfolio-card featured" data-category="broadcast" data-title="GTV Evening News Package" data-desc="A complete broadcast package for a primetime evening news program — lower thirds, bumpers, transition wipes, and fullscreen graphics all built around a bold typographic system." data-tags="Broadcast Design,Lower Thirds,Motion Graphics,After Effects">
       <button class="admin-edit-btn" onclick="editCard(this.closest('.portfolio-card'),event)">&#x270E; Edit</button>
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
       <div class="card-visual grad-1">
         <svg width="80" height="80" viewBox="0 0 80 80" fill="none" style="position:relative;z-index:1;opacity:0.5;">
           <rect x="8" y="20" width="64" height="40" rx="3" stroke="white" stroke-width="1.5" fill="none"/>
@@ -1391,6 +1427,8 @@
     </div>
     <div class="portfolio-card" data-category="motion" data-title="Orbital Motion Reel" data-desc="A 90-second motion reel exploring abstract 3D forms, fluid simulations, and typographic animation. Created in Cinema 4D and After Effects." data-tags="After Effects,Cinema 4D,3D Animation,Motion Reel">
       <button class="admin-edit-btn" onclick="editCard(this.closest('.portfolio-card'),event)">&#x270E; Edit</button>
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
       <div class="card-visual grad-2">
         <svg width="60" height="60" viewBox="0 0 60 60" fill="none" style="position:relative;z-index:1;opacity:0.5;">
           <circle cx="30" cy="30" r="22" stroke="white" stroke-width="1.5" fill="none"/>
@@ -1406,6 +1444,8 @@
     </div>
     <div class="portfolio-card" data-category="broadcast" data-title="Sports Show Open" data-desc="Animated open sequence for a weekly sports highlights show — kinetic type, score cards, player name supers, and a high-energy 30-second cold open." data-tags="Broadcast,Sports Graphics,Kinetic Type,After Effects">
       <button class="admin-edit-btn" onclick="editCard(this.closest('.portfolio-card'),event)">&#x270E; Edit</button>
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
       <div class="card-visual grad-3">
         <svg width="60" height="60" viewBox="0 0 60 60" fill="none" style="position:relative;z-index:1;opacity:0.5;">
           <polygon points="12,12 48,12 48,40 12,40" stroke="white" stroke-width="1.5" fill="none"/>
@@ -1423,6 +1463,8 @@
     </div>
     <div class="portfolio-card" data-category="motion" data-title="Bloom Campaign" data-desc="Animated social campaign for a fashion brand's spring collection — 12 assets across Stories, Reels, and display ads with a consistent visual language." data-tags="2D Animation,Social Media,Campaign,Lottie">
       <button class="admin-edit-btn" onclick="editCard(this.closest('.portfolio-card'),event)">&#x270E; Edit</button>
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
       <div class="card-visual grad-4">
         <svg width="60" height="60" viewBox="0 0 60 60" fill="none" style="position:relative;z-index:1;opacity:0.5;">
           <rect x="16" y="8" width="28" height="44" rx="4" stroke="white" stroke-width="1.5" fill="none"/>
@@ -1439,6 +1481,8 @@
     </div>
     <div class="portfolio-card" data-category="branding" data-title="Forge Studio Identity" data-desc="Brand identity for an architecture and interior design studio — a mark built on tension and balance, extended across print and digital collateral." data-tags="Brand Identity,Logo Design,Print,Editorial">
       <button class="admin-edit-btn" onclick="editCard(this.closest('.portfolio-card'),event)">&#x270E; Edit</button>
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
       <div class="card-visual grad-5">
         <svg width="60" height="60" viewBox="0 0 60 60" fill="none" style="position:relative;z-index:1;opacity:0.5;">
           <polygon points="30,8 52,52 8,52" stroke="white" stroke-width="1.5" fill="none"/>
@@ -1453,6 +1497,8 @@
     </div>
     <div class="portfolio-card" data-category="broadcast" data-title="Talk Show Lower Thirds" data-desc="Custom lower thirds, name supers, and chyron system for a weekly talk show — animated in After Effects with modular presets for fast live-broadcast turnaround." data-tags="Broadcast,Lower Thirds,Chyrons,Live Graphics">
       <button class="admin-edit-btn" onclick="editCard(this.closest('.portfolio-card'),event)">&#x270E; Edit</button>
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
       <div class="card-visual grad-6">
         <svg width="60" height="60" viewBox="0 0 60 60" fill="none" style="position:relative;z-index:1;opacity:0.5;">
           <rect x="6" y="36" width="48" height="14" rx="2" stroke="white" stroke-width="1" fill="none" opacity="0.5"/>
@@ -1490,6 +1536,8 @@
   <div class="film-grid" id="filmGrid">
     <div class="film-card reveal" data-ftype="documentary">
       <button class="admin-edit-btn" onclick="editFilm(this.closest('.film-card'),event)">&#x270E; Edit</button>
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
       <div class="film-poster" style="background:linear-gradient(135deg,#0a1a12,#0a3020,#0a1a14);">
         <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="opacity:0.35;"><rect x="4" y="8" width="40" height="32" rx="2" stroke="white" stroke-width="1.5" fill="none"/><circle cx="24" cy="24" r="8" stroke="white" stroke-width="1" fill="none" opacity="0.6"/><polygon points="20,20 32,24 20,28" fill="white" opacity="0.5"/></svg>
       </div>
@@ -1503,6 +1551,8 @@
     </div>
     <div class="film-card reveal" data-ftype="shortfilm">
       <button class="admin-edit-btn" onclick="editFilm(this.closest('.film-card'),event)">&#x270E; Edit</button>
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
       <div class="film-poster" style="background:linear-gradient(135deg,#0a0a1a,#1a1a0a,#101010);">
         <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="opacity:0.35;"><path d="M8 8h32v32H8z" stroke="white" stroke-width="1.5" fill="none"/><path d="M8 16h32M16 8v8M24 8v8M32 8v8" stroke="white" stroke-width="1" opacity="0.4"/><circle cx="24" cy="30" r="6" stroke="white" stroke-width="1" fill="none" opacity="0.6"/><polygon points="21,27 29,30 21,33" fill="white" opacity="0.5"/></svg>
       </div>
@@ -1516,6 +1566,8 @@
     </div>
     <div class="film-card reveal" data-ftype="shortfilm">
       <button class="admin-edit-btn" onclick="editFilm(this.closest('.film-card'),event)">&#x270E; Edit</button>
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
       <div class="film-poster" style="background:linear-gradient(135deg,#1a1204,#3a2808,#1a1204);">
         <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="opacity:0.35;"><circle cx="24" cy="24" r="18" stroke="white" stroke-width="1.5" fill="none"/><path d="M24 6v18l10 10" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/></svg>
       </div>
@@ -1549,6 +1601,8 @@
       data-aspect="16:9"
       data-thumb-url="">
       <button class="admin-edit-btn" onclick="editReel(this.closest('.reel-item'),event)">&#x270E; Edit</button>
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
       <div class="reel-thumb-wrap">
         <div class="reel-thumb" style="background:linear-gradient(135deg,#1a0309,#3b0714,#1e0b1b);">
           <svg width="56" height="56" viewBox="0 0 56 56" fill="none" style="position:relative;z-index:1;opacity:0.45;"><circle cx="28" cy="28" r="24" stroke="white" stroke-width="1.5" fill="none"/><polygon points="22,18 42,28 22,38" fill="white" opacity="0.7"/></svg>
@@ -1592,24 +1646,32 @@
   <div class="photo-grid" id="photoGrid">
     <div class="photo-item reveal" data-caption="Street / Manila, 2023" onclick="openLightbox(this)">
       <button class="admin-edit-btn" onclick="editPhoto(this.closest('.photo-item'),event)">&#x270E; Edit</button>
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
       <div class="photo-inner" style="min-height:360px;background:linear-gradient(135deg,#1a0309,#3b0714,#1e0b1b);"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1" opacity="0.25" style="position:relative;z-index:1;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="white"/><polyline points="21,15 16,10 5,21"/></svg></div>
       <div class="photo-expand-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polyline points="15,3 21,3 21,9"/><polyline points="9,21 3,21 3,15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div>
       <div class="photo-caption">Street / Manila, 2023</div>
     </div>
     <div class="photo-item reveal" data-caption="Portrait Series, 2023" onclick="openLightbox(this)">
       <button class="admin-edit-btn" onclick="editPhoto(this.closest('.photo-item'),event)">&#x270E; Edit</button>
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
       <div class="photo-inner" style="min-height:360px;background:linear-gradient(135deg,#1a0a0a,#3d1010,#2a0808);"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1" opacity="0.25" style="position:relative;z-index:1;"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
       <div class="photo-expand-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polyline points="15,3 21,3 21,9"/><polyline points="9,21 3,21 3,15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div>
       <div class="photo-caption">Portrait Series, 2023</div>
     </div>
     <div class="photo-item reveal" data-caption="Urban Architecture, 2022" onclick="openLightbox(this)">
       <button class="admin-edit-btn" onclick="editPhoto(this.closest('.photo-item'),event)">&#x270E; Edit</button>
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
       <div class="photo-inner" style="min-height:360px;background:linear-gradient(135deg,#1a0000,#400010,#1e0a0a);"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1" opacity="0.25" style="position:relative;z-index:1;"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div>
       <div class="photo-expand-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polyline points="15,3 21,3 21,9"/><polyline points="9,21 3,21 3,15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div>
       <div class="photo-caption">Urban Architecture, 2022</div>
     </div>
     <div class="photo-item reveal" data-caption="Light Study, 2022" onclick="openLightbox(this)">
       <button class="admin-edit-btn" onclick="editPhoto(this.closest('.photo-item'),event)">&#x270E; Edit</button>
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
       <div class="photo-inner" style="min-height:360px;background:linear-gradient(135deg,#1a0a12,#35081a,#1a0510);"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1" opacity="0.25" style="position:relative;z-index:1;"><circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/></svg></div>
       <div class="photo-expand-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polyline points="15,3 21,3 21,9"/><polyline points="9,21 3,21 3,15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div>
       <div class="photo-caption">Light Study, 2022</div>
@@ -1639,6 +1701,7 @@
   <h2 class="section-title reveal" contenteditable="false" data-editable data-persist-id="exp-title">Where I've built<br>my craft.</h2>
   <div class="timeline">
     <div class="timeline-item">
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
       <button class="del-exp-btn" onclick="this.closest('.timeline-item').remove()" title="Delete entry">&#x2715; Delete</button>
       <div class="timeline-date" contenteditable="false" data-editable>2023 — Present</div>
       <div class="timeline-role" contenteditable="false" data-editable>Senior Creative Designer</div>
@@ -1646,6 +1709,7 @@
       <div class="timeline-desc" contenteditable="false" data-editable>Lead designer for brand and motion projects across broadcast, fashion, and FMCG clients. Manage a team of three junior creatives and own creative direction from brief to delivery.</div>
     </div>
     <div class="timeline-item">
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
       <button class="del-exp-btn" onclick="this.closest('.timeline-item').remove()" title="Delete entry">&#x2715; Delete</button>
       <div class="timeline-date" contenteditable="false" data-editable>2021 — 2023</div>
       <div class="timeline-role" contenteditable="false" data-editable>Broadcast Motion Designer</div>
@@ -1653,6 +1717,7 @@
       <div class="timeline-desc" contenteditable="false" data-editable>Produced animated broadcast packages, lower thirds, and motion content for TV networks and social campaigns. Delivered 200+ motion assets across a two-year engagement.</div>
     </div>
     <div class="timeline-item">
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
       <button class="del-exp-btn" onclick="this.closest('.timeline-item').remove()" title="Delete entry">&#x2715; Delete</button>
       <div class="timeline-date" contenteditable="false" data-editable>2019 — 2021</div>
       <div class="timeline-role" contenteditable="false" data-editable>Visual Designer</div>
@@ -1660,6 +1725,7 @@
       <div class="timeline-desc" contenteditable="false" data-editable>Designed broadcast graphics, marketing collateral, and digital campaigns. Partnered with producers and directors to deliver broadcast-ready layouts and packages.</div>
     </div>
     <div class="timeline-item">
+      <div class="drag-handle" title="Drag to reorder">⠿</div>
       <button class="del-exp-btn" onclick="this.closest('.timeline-item').remove()" title="Delete entry">&#x2715; Delete</button>
       <div class="timeline-date" contenteditable="false" data-editable>2018 — 2019</div>
       <div class="timeline-role" contenteditable="false" data-editable>Junior Designer</div>
@@ -2074,7 +2140,7 @@ function saveCard(data) {
     const imgContent = data.imageUrl
       ? '<img src="' + data.imageUrl + '" alt="' + data.title + '" style="width:100%;height:100%;object-fit:cover;">'
       : '<svg width="50" height="50" viewBox="0 0 60 60" fill="none" style="position:relative;z-index:1;opacity:0.4;"><rect x="10" y="10" width="40" height="40" rx="4" stroke="white" stroke-width="1.5" fill="none"/></svg>';
-    card.innerHTML = '<button class="admin-edit-btn" onclick="editCard(this.closest(\'.portfolio-card\'),event)">&#x270E; Edit</button>'
+    card.innerHTML = '<button class="admin-edit-btn" onclick="editCard(this.closest(\'.portfolio-card\'),event)">&#x270E; Edit</button><div class="drag-handle" title="Drag to reorder">⠿</div>'
       + '<div class="card-visual ' + g + '">' + imgContent + '</div>'
       + '<div class="card-overlay"><div class="card-category">' + cap(data.category) + '</div><div class="card-title">' + data.title + '</div>'
       + '<a ' + linkAttr + ' class="card-link">View project &#x2197;</a></div>';
@@ -2142,7 +2208,7 @@ function saveFilm(data) {
     const posterContent = data.imageUrl
       ? '<img src="' + data.imageUrl + '" alt="' + data.title + '" style="width:100%;height:100%;object-fit:cover;">'
       : '<svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="opacity:0.35;"><rect x="4" y="8" width="40" height="32" rx="2" stroke="white" stroke-width="1.5" fill="none"/></svg>';
-    card.innerHTML = '<button class="admin-edit-btn" onclick="editFilm(this.closest(\'.film-card\'),event)">&#x270E; Edit</button>'
+    card.innerHTML = '<button class="admin-edit-btn" onclick="editFilm(this.closest(\'.film-card\'),event)">&#x270E; Edit</button><div class="drag-handle" title="Drag to reorder">⠿</div>'
       + '<div class="film-poster" style="background:' + bgGrad + ';">' + posterContent + '</div>'
       + '<div class="film-info"><span class="film-type-badge ' + badgeClass + '">' + badgeLabel + '</span>'
       + '<div class="film-title">' + data.title + '</div><div class="film-role">' + data.role + '</div>'
@@ -2186,7 +2252,7 @@ function savePhoto(data) {
     const imgContent = data.imageUrl
       ? '<img src="' + data.imageUrl + '" alt="' + data.caption + '" style="width:100%;height:100%;object-fit:cover;">'
       : '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1" opacity="0.25"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>';
-    item.innerHTML = '<button class="admin-edit-btn" onclick="editPhoto(this.closest(\'.photo-item\'),event)">&#x270E; Edit</button>'
+    item.innerHTML = '<button class="admin-edit-btn" onclick="editPhoto(this.closest(\'.photo-item\'),event)">&#x270E; Edit</button><div class="drag-handle" title="Drag to reorder">⠿</div>'
       + '<div class="photo-inner" style="min-height:360px;background:' + bg + ';">' + imgContent + '</div>'
       + expandIcon
       + '<div class="photo-caption">' + data.caption + '</div>';
@@ -2280,7 +2346,7 @@ function addExperience() {
   // being accidentally saved to Supabase before the user filled it in,
   // then restored on reload and appeared in unrelated sections.
   item.innerHTML =
-    '<button class="del-exp-btn" onclick="this.closest(\'.timeline-item\').remove()">&#x2715; Delete</button>'
+    '<div class="drag-handle" title="Drag to reorder">⠿</div><button class="del-exp-btn" onclick="this.closest(\'.timeline-item\').remove()">&#x2715; Delete</button>'
     + '<div class="timeline-date" contenteditable="false" data-editable spellcheck="false" data-placeholder="Year — Year"></div>'
     + '<div class="timeline-role" contenteditable="false" data-editable spellcheck="false" data-placeholder="Your Role"></div>'
     + '<div class="timeline-company" contenteditable="false" data-editable spellcheck="false" data-placeholder="Company Name"></div>'
@@ -2382,7 +2448,7 @@ function buildReelCard(r) {
   const aspectClass = (r.aspect === '9:16') ? ' aspect-916' : '';
 
   item.innerHTML =
-    '<button class="admin-edit-btn" onclick="editReel(this.closest(\'.reel-item\'),event)">&#x270E; Edit</button>'
+    '<button class="admin-edit-btn" onclick="editReel(this.closest(\'.reel-item\'),event)">&#x270E; Edit</button><div class="drag-handle" title="Drag to reorder">⠿</div>'
     + '<div class="reel-thumb-wrap' + aspectClass + '">'
     +   '<div class="reel-thumb" style="' + bgStyle + '">' + thumbHtml + '</div>'
     +   '<button class="reel-play-btn" onclick="openReelPlayer(this.closest(\'.reel-item\'))">'
@@ -2943,7 +3009,7 @@ function applyPageData(saved) {
         const item = document.createElement('div');
         item.className = 'timeline-item';
         item.innerHTML =
-          '<button class="del-exp-btn" onclick="this.closest(\'.timeline-item\').remove()">&#x2715; Delete</button>'
+          '<div class="drag-handle" title="Drag to reorder">⠿</div><button class="del-exp-btn" onclick="this.closest(\'.timeline-item\').remove()">&#x2715; Delete</button>'
           + '<div class="timeline-date" contenteditable="false" data-editable>'    + (exp.date    || '') + '</div>'
           + '<div class="timeline-role" contenteditable="false" data-editable>'    + (exp.role    || '') + '</div>'
           + '<div class="timeline-company" contenteditable="false" data-editable>' + (exp.company || '') + '</div>'
@@ -2986,7 +3052,7 @@ function applyPageData(saved) {
       const imgContent = c.imageUrl
         ? '<img src="' + c.imageUrl + '" alt="' + c.title + '" style="width:100%;height:100%;object-fit:cover;position:relative;z-index:0;">'
         : '<svg width="50" height="50" viewBox="0 0 60 60" fill="none" style="position:relative;z-index:1;opacity:0.4;"><rect x="10" y="10" width="40" height="40" rx="4" stroke="white" stroke-width="1.5" fill="none"/></svg>';
-      card.innerHTML = '<button class="admin-edit-btn" onclick="editCard(this.closest(\'.portfolio-card\'),event)">&#x270E; Edit</button>'
+      card.innerHTML = '<button class="admin-edit-btn" onclick="editCard(this.closest(\'.portfolio-card\'),event)">&#x270E; Edit</button><div class="drag-handle" title="Drag to reorder">⠿</div>'
         + '<div class="card-visual ' + g + '">' + imgContent + '</div>'
         + '<div class="card-overlay"><div class="card-category">' + cap(c.category) + '</div><div class="card-title">' + c.title + '</div>'
         + '<a ' + linkAttr + ' class="card-link">View project &#x2197;</a></div>';
@@ -3022,7 +3088,7 @@ function applyPageData(saved) {
       const card = document.createElement('div');
       card.className = 'film-card reveal';
       card.dataset.ftype = f.ftype;
-      card.innerHTML = '<button class="admin-edit-btn" onclick="editFilm(this.closest(\'.film-card\'),event)">&#x270E; Edit</button>'
+      card.innerHTML = '<button class="admin-edit-btn" onclick="editFilm(this.closest(\'.film-card\'),event)">&#x270E; Edit</button><div class="drag-handle" title="Drag to reorder">⠿</div>'
         + '<div class="film-poster" style="background:' + (f.imageUrl ? 'none' : bgGrad) + ';">' + posterContent + '</div>'
         + '<div class="film-info"><span class="film-type-badge ' + badgeClass + '">' + badgeLabel + '</span>'
         + '<div class="film-title">' + f.title + '</div><div class="film-role">' + f.role + '</div>'
@@ -3061,7 +3127,7 @@ function applyPageData(saved) {
       item.className = 'photo-item reveal';
       item.dataset.caption = p.caption || '';
       item.setAttribute('onclick','openLightbox(this)');
-      item.innerHTML = '<button class="admin-edit-btn" onclick="editPhoto(this.closest(\'.photo-item\'),event)">&#x270E; Edit</button>'
+      item.innerHTML = '<button class="admin-edit-btn" onclick="editPhoto(this.closest(\'.photo-item\'),event)">&#x270E; Edit</button><div class="drag-handle" title="Drag to reorder">⠿</div>'
         + '<div class="photo-inner" style="min-height:360px;background:' + (p.imageUrl ? 'none' : bg) + ';">' + imgContent + '</div>'
         + expandIcon
         + '<div class="photo-caption">' + (p.caption||'') + '</div>';
@@ -3083,6 +3149,8 @@ function applyPageData(saved) {
   }
 
   rebindCursor();
+  // Re-attach sortable drag after DOM rebuild
+  if (isAdmin) initSortables();
 }
 
 // ── AUTO-SAVE: debounced 1.2s after any inline edit ──────────────────────
@@ -3198,6 +3266,7 @@ window.tryLogin = function() {
     closeLogin();
     enableInlineEdit();
     setupAutoSave();
+    initSortables();
     showToastMsg('Admin mode active — click any text to edit it \u2756');
     rebindCursor();
   } else {
@@ -3212,8 +3281,59 @@ function exitAdminMode() {
   isAdmin = false;
   document.body.classList.remove('admin-mode');
   disableInlineEdit();
+  destroySortables();
   showToastMsg('Switched to visitor view');
   rebindCursor();
+}
+
+// ── DRAG & DROP: SORTABLE INSTANCES ──────────────────────────────────────
+let _sortables = [];
+
+function initSortables() {
+  destroySortables(); // clean up any existing instances first
+
+  const onEnd = async () => {
+    await persistAll();
+  };
+
+  const commonOpts = (handle) => ({
+    handle: handle,
+    animation: 180,
+    easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+    ghostClass: 'sortable-ghost',
+    chosenClass: 'sortable-chosen',
+    dragClass: 'sortable-drag',
+    filter: '.add-card-btn, .add-film-btn, .add-reel-btn, .add-photo-btn, .add-exp-btn',
+    onEnd
+  });
+
+  // Portfolio grid
+  const portfolioGrid = document.getElementById('portfolioGrid');
+  if (portfolioGrid) _sortables.push(Sortable.create(portfolioGrid, commonOpts('.drag-handle')));
+
+  // Film grid
+  const filmGrid = document.getElementById('filmGrid');
+  if (filmGrid) _sortables.push(Sortable.create(filmGrid, commonOpts('.drag-handle')));
+
+  // Reel grid
+  const reelGrid = document.getElementById('reelGrid');
+  if (reelGrid) _sortables.push(Sortable.create(reelGrid, commonOpts('.drag-handle')));
+
+  // Photo grid
+  const photoGrid = document.getElementById('photoGrid');
+  if (photoGrid) _sortables.push(Sortable.create(photoGrid, commonOpts('.drag-handle')));
+
+  // Timeline (experience)
+  const timeline = document.querySelector('.timeline');
+  if (timeline) _sortables.push(Sortable.create(timeline, {
+    ...commonOpts('.drag-handle'),
+    filter: '.add-exp-btn',
+  }));
+}
+
+function destroySortables() {
+  _sortables.forEach(s => { try { s.destroy(); } catch(e) {} });
+  _sortables = [];
 }
 // We redefine saveAdminPanel entirely to call persistAll after
 const _origSaveAdminPanel = window.saveAdminPanel;
@@ -3224,6 +3344,7 @@ window.saveAdminPanel = async function() {
   else if (currentEditType === 'photo') savePhoto(data);
   else if (currentEditType === 'reel') saveReel(data);
   closeAdminPanel();
+  if (isAdmin) initSortables(); // re-init so new cards get drag handles
   const ok = await persistAll();
   showToastMsg(ok ? 'Saved ✦' : '⚠ Save failed');
 };
