@@ -916,6 +916,7 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 24px;
+    align-items: start;
   }
   .reel-item {
     background: var(--navy-light);
@@ -935,9 +936,11 @@
     overflow: hidden;
     background: var(--navy);
   }
+  /* Portrait 9:16 — constrain width so it doesn't stretch across full column */
   .reel-thumb-wrap.aspect-916 {
     aspect-ratio: 9/16;
-    max-height: 420px;
+    width: 60%;
+    margin: 0 auto;
   }
   .reel-thumb {
     width: 100%; height: 100%;
@@ -1094,6 +1097,14 @@
     aspect-ratio: 16/9;
     background: #000;
     overflow: hidden;
+  }
+  .reel-player-viewport.portrait {
+    aspect-ratio: 9/16;
+    max-height: 72vh;
+    margin: 0 auto;
+  }
+  .reel-player-card.portrait-card {
+    max-width: 420px;
   }
   .reel-player-viewport iframe,
   .reel-player-viewport video {
@@ -1403,7 +1414,9 @@
       data-desc="A curated collection of motion design, broadcast packages, and animation work from 2024."
       data-video-url="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
       data-duration="2:45"
-      data-category="showreel">
+      data-category="showreel"
+      data-aspect="16:9"
+      data-thumb-url="">
       <button class="admin-edit-btn" onclick="editReel(this.closest('.reel-item'),event)">&#x270E; Edit</button>
       <div class="reel-thumb-wrap">
         <div class="reel-thumb" style="background:linear-gradient(135deg,#1a0309,#3b0714,#1e0b1b);">
@@ -2273,13 +2286,23 @@ function openReelPlayer(item) {
   const title     = item.dataset.title || '';
   const desc      = item.dataset.desc  || '';
   const category  = item.dataset.category || 'Reel';
+  const aspect    = item.dataset.aspect || '16:9';
 
   document.getElementById('rp-category').textContent = category.charAt(0).toUpperCase() + category.slice(1);
   document.getElementById('rp-title').textContent    = title;
   document.getElementById('rp-desc').textContent     = desc;
 
-  const viewport = document.getElementById('rp-viewport');
+  // Apply portrait/landscape to viewport and card
+  const viewport  = document.getElementById('rp-viewport');
+  const playerCard = viewport.closest('.reel-player-card');
   viewport.innerHTML = '';
+  if (aspect === '9:16') {
+    viewport.classList.add('portrait');
+    playerCard.classList.add('portrait-card');
+  } else {
+    viewport.classList.remove('portrait');
+    playerCard.classList.remove('portrait-card');
+  }
 
   const parsed = parseVideoUrl(videoUrl);
   if (!parsed) {
