@@ -4,6 +4,35 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gerome Viñas — Creative Portfolio</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23E8001D'/%3E%3Ctext x='16' y='24' font-family='Inter%2C sans-serif' font-size='20' font-weight='400' fill='white' text-anchor='middle'%3EG%3C/text%3E%3C/svg%3E">
+<script>
+document.fonts.ready.then(() => {
+  const c = document.createElement('canvas');
+  c.width = c.height = 64;
+  const ctx = c.getContext('2d');
+  const r = 14;
+  ctx.beginPath();
+  ctx.moveTo(r, 0); ctx.lineTo(64 - r, 0);
+  ctx.quadraticCurveTo(64, 0, 64, r);
+  ctx.lineTo(64, 64 - r);
+  ctx.quadraticCurveTo(64, 64, 64 - r, 64);
+  ctx.lineTo(r, 64);
+  ctx.quadraticCurveTo(0, 64, 0, 64 - r);
+  ctx.lineTo(0, r);
+  ctx.quadraticCurveTo(0, 0, r, 0);
+  ctx.closePath();
+  ctx.fillStyle = '#E8001D';
+  ctx.fill();
+  ctx.fillStyle = 'white';
+  ctx.font = '400 42px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('G', 32, 34);
+  const link = document.querySelector("link[rel~='icon']");
+  link.type = 'image/png';
+  link.href = c.toDataURL('image/png');
+});
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
 <style>
