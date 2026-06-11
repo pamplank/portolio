@@ -935,6 +935,10 @@
     overflow: hidden;
     background: var(--navy);
   }
+  .reel-thumb-wrap.aspect-916 {
+    aspect-ratio: 9/16;
+    max-height: 420px;
+  }
   .reel-thumb {
     width: 100%; height: 100%;
     display: flex; align-items: center; justify-content: center;
@@ -2201,6 +2205,7 @@ function buildReelCard(r) {
   item.dataset.duration = r.duration || '';
   item.dataset.category = r.category || 'reel';
   item.dataset.thumbUrl = r.thumbUrl || '';
+  item.dataset.aspect   = r.aspect   || '16:9';
 
   const thumbHtml = r.thumbUrl
     ? '<img src="' + r.thumbUrl + '" alt="' + (r.title||'') + '" loading="lazy">'
@@ -2208,10 +2213,11 @@ function buildReelCard(r) {
   const bgStyle = r.thumbUrl ? '' : 'background:linear-gradient(135deg,#1a0309,#3b0714,#1e0b1b);';
   const durBadge = r.duration ? '<div class="reel-duration-badge">' + r.duration + '</div>' : '';
   const catLabel = r.category ? r.category.charAt(0).toUpperCase() + r.category.slice(1) : 'Reel';
+  const aspectClass = (r.aspect === '9:16') ? ' aspect-916' : '';
 
   item.innerHTML =
     '<button class="admin-edit-btn" onclick="editReel(this.closest(\'.reel-item\'),event)">&#x270E; Edit</button>'
-    + '<div class="reel-thumb-wrap">'
+    + '<div class="reel-thumb-wrap' + aspectClass + '">'
     +   '<div class="reel-thumb" style="' + bgStyle + '">' + thumbHtml + '</div>'
     +   '<button class="reel-play-btn" onclick="openReelPlayer(this.closest(\'.reel-item\'))">'
     +     '<svg width="22" height="22" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>'
@@ -2231,7 +2237,7 @@ function buildReelCard(r) {
 }
 
 // ── VIDEO URL PARSER ─────────────────────────────────────────────────────
-// Returns { type: 'youtube'|'vimeo'|'direct', id, embedUrl }
+// Returns { type: 'youtube'|'vimeo'|'facebook'|'instagram'|'direct', id, embedUrl }
 function parseVideoUrl(url) {
   if (!url) return null;
   url = url.trim();
@@ -2243,6 +2249,16 @@ function parseVideoUrl(url) {
   // Vimeo
   let vi = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
   if (vi) return { type: 'vimeo', id: vi[1], embedUrl: 'https://player.vimeo.com/video/' + vi[1] + '?autoplay=1&dnt=1' };
+
+  // Facebook video (facebook.com/*/videos/* or fb.watch/*)
+  if (/facebook\.com|fb\.watch/.test(url)) return { type: 'facebook', embedUrl: url };
+
+  // Instagram reel or post (instagram.com/reel/* or instagram.com/p/*)
+  if (/instagram\.com\/(reel|p|tv)\//.test(url)) {
+    const igMatch = url.match(/instagram\.com\/(?:reel|p|tv)\/([A-Za-z0-9_-]+)/);
+    const igId = igMatch ? igMatch[1] : '';
+    return { type: 'instagram', id: igId, embedUrl: url };
+  }
 
   // Direct video file (.mp4 .webm .mov)
   if (/\.(mp4|webm|mov|ogg)(\?|$)/i.test(url)) return { type: 'direct', embedUrl: url };
@@ -2276,6 +2292,30 @@ function openReelPlayer(item) {
     vid.style.width = '100%';
     vid.style.height = '100%';
     viewport.appendChild(vid);
+  } else if (parsed.type === 'facebook') {
+    // Facebook embed via JS SDK
+    _loadFbSdk(() => {
+      const wrapper = document.createElement('div');
+      wrapper.style.cssText = 'width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#000;';
+      const fbDiv = document.createElement('div');
+      fbDiv.className = 'fb-video';
+      fbDiv.setAttribute('data-href', parsed.embedUrl);
+      fbDiv.setAttribute('data-width', '800');
+      fbDiv.setAttribute('data-allowfullscreen', 'true');
+      fbDiv.setAttribute('data-autoplay', 'true');
+      wrapper.appendChild(fbDiv);
+      viewport.appendChild(wrapper);
+      if (window.FB) window.FB.XFBML.parse(viewport);
+    });
+  } else if (parsed.type === 'instagram') {
+    // Instagram oEmbed — open in a styled fallback since IG blocks direct iframes
+    viewport.innerHTML =
+      '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;padding:24px;text-align:center;">'
+      + '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#e8001d" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="#e8001d" stroke="none"/></svg>'
+      + '<div style="color:var(--off-white);font-weight:600;font-size:1rem;">Instagram Video</div>'
+      + '<div style="color:var(--muted);font-size:0.82rem;max-width:280px;line-height:1.6;">Instagram restricts third-party embeds. Tap the button below to watch directly on Instagram.</div>'
+      + '<a href="' + parsed.embedUrl + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:linear-gradient(135deg,#f58529,#dd2a7b,#8134af);color:#fff;border-radius:8px;font-size:0.88rem;font-weight:600;text-decoration:none;">Watch on Instagram ↗</a>'
+      + '</div>';
   } else {
     // Lazy iframe — only created when player opens, destroyed on close → no page weight
     const iframe = document.createElement('iframe');
@@ -2289,6 +2329,25 @@ function openReelPlayer(item) {
   overlay.style.display = 'flex';
   requestAnimationFrame(() => overlay.classList.add('open'));
   document.body.style.overflow = 'hidden';
+}
+
+// Lazy-load the Facebook JS SDK once
+function _loadFbSdk(cb) {
+  if (window.FB) { cb(); return; }
+  window.fbAsyncInit = function() { window.FB.init({ xfbml: true, version: 'v19.0' }); cb(); };
+  if (!document.getElementById('facebook-jssdk')) {
+    const s = document.createElement('script');
+    s.id = 'facebook-jssdk';
+    s.src = 'https://connect.facebook.net/en_US/sdk.js';
+    s.async = true; s.defer = true;
+    document.head.appendChild(s);
+    // Also inject fb-root if missing
+    if (!document.getElementById('fb-root')) {
+      const r = document.createElement('div');
+      r.id = 'fb-root';
+      document.body.prepend(r);
+    }
+  }
 }
 
 function closeReelPlayerBtn() {
@@ -2316,11 +2375,13 @@ function editReel(item, e) {
     { key:'title',    label:'Reel Title',                value: item.dataset.title    || '' },
     { key:'category', label:'Category', type:'select',   value: item.dataset.category || 'showreel',
       options: [{v:'showreel',l:'Showreel'},{v:'motion',l:'Motion Design'},{v:'broadcast',l:'Broadcast'},{v:'branding',l:'Branding'},{v:'social',l:'Social / Campaign'},{v:'film',l:'Film'},{v:'other',l:'Other'}] },
-    { key:'videoUrl', label:'Video URL (YouTube, Vimeo, or .mp4 link)', placeholder:'https://youtube.com/watch?v=...', value: item.dataset.videoUrl || '' },
+    { key:'aspect',   label:'Thumbnail Aspect Ratio', type:'select', value: item.dataset.aspect || '16:9',
+      options: [{v:'16:9',l:'16:9 — Landscape (default)'},{v:'9:16',l:'9:16 — Portrait / Vertical'}] },
+    { key:'videoUrl', label:'Video URL (YouTube, Vimeo, Facebook, Instagram, or .mp4)', placeholder:'https://youtube.com/watch?v=...', value: item.dataset.videoUrl || '' },
     { key:'duration', label:'Duration (e.g. 2:45)', placeholder:'2:45', value: item.dataset.duration || '' },
     { key:'desc',     label:'Description', type:'textarea', value: item.dataset.desc || '' },
-    { key:'thumbUrl', label:'Thumbnail Image', type:'image-upload', value: item.querySelector('.reel-thumb img')?.src || '',
-      hints: { res:'1280×720', aspect:'16:9', size:'2 MB' } }
+    { key:'thumbUrl', label:'Thumbnail Image', type:'image-upload', value: item.dataset.thumbUrl || '',
+      hints: { res:'1280×720 or 720×1280', aspect:'16:9 or 9:16', size:'2 MB' } }
   ], item);
 }
 function openAddReel() {
@@ -2329,11 +2390,13 @@ function openAddReel() {
     { key:'title',    label:'Reel Title',    placeholder:'My Showreel 2024' },
     { key:'category', label:'Category', type:'select',
       options: [{v:'showreel',l:'Showreel'},{v:'motion',l:'Motion Design'},{v:'broadcast',l:'Broadcast'},{v:'branding',l:'Branding'},{v:'social',l:'Social / Campaign'},{v:'film',l:'Film'},{v:'other',l:'Other'}] },
-    { key:'videoUrl', label:'Video URL (YouTube, Vimeo, or .mp4 link)', placeholder:'https://youtube.com/watch?v=...' },
+    { key:'aspect',   label:'Thumbnail Aspect Ratio', type:'select',
+      options: [{v:'16:9',l:'16:9 — Landscape (default)'},{v:'9:16',l:'9:16 — Portrait / Vertical'}] },
+    { key:'videoUrl', label:'Video URL (YouTube, Vimeo, Facebook, Instagram, or .mp4)', placeholder:'https://youtube.com/watch?v=...' },
     { key:'duration', label:'Duration (e.g. 2:45)', placeholder:'2:45' },
     { key:'desc',     label:'Description', type:'textarea', placeholder:'Short description of this reel...' },
     { key:'thumbUrl', label:'Thumbnail Image', type:'image-upload',
-      hints: { res:'1280×720', aspect:'16:9', size:'2 MB' } }
+      hints: { res:'1280×720 or 720×1280', aspect:'16:9 or 9:16', size:'2 MB' } }
   ], null);
 }
 function saveReel(data) {
@@ -2345,9 +2408,15 @@ function saveReel(data) {
     item.dataset.videoUrl = data.videoUrl;
     item.dataset.duration = data.duration;
     item.dataset.category = data.category;
+    item.dataset.aspect   = data.aspect || '16:9';
     item.querySelector('.reel-title').textContent = data.title;
     item.querySelector('.reel-desc').textContent  = data.desc;
     item.querySelector('.reel-category-badge').textContent = data.category.charAt(0).toUpperCase() + data.category.slice(1);
+    // Update aspect ratio class on thumb wrap
+    const thumbWrap = item.querySelector('.reel-thumb-wrap');
+    if (thumbWrap) {
+      thumbWrap.classList.toggle('aspect-916', data.aspect === '9:16');
+    }
     const durEl = item.querySelector('.reel-duration-badge');
     if (data.duration) {
       if (durEl) durEl.textContent = data.duration;
@@ -2365,7 +2434,7 @@ function saveReel(data) {
       thumb.innerHTML = '<img src="' + data.thumbUrl + '" alt="' + data.title + '" loading="lazy">';
     }
   } else {
-    const card = buildReelCard({ title: data.title, desc: data.desc, videoUrl: data.videoUrl, duration: data.duration, category: data.category, thumbUrl: data.thumbUrl });
+    const card = buildReelCard({ title: data.title, desc: data.desc, videoUrl: data.videoUrl, duration: data.duration, category: data.category, thumbUrl: data.thumbUrl, aspect: data.aspect || '16:9' });
     const rg = document.getElementById('reelGrid');
     rg.insertBefore(card, rg.querySelector('.add-reel-btn'));
     observer.observe(card);
@@ -2590,7 +2659,8 @@ function collectPageData() {
     videoUrl:  item.dataset.videoUrl || '',
     thumbUrl:  item.dataset.thumbUrl || item.querySelector('.reel-thumb img')?.src || '',
     duration:  item.dataset.duration  || '',
-    category:  item.dataset.category  || ''
+    category:  item.dataset.category  || '',
+    aspect:    item.dataset.aspect    || '16:9'
   }));
 
   return data;
