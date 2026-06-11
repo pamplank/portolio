@@ -702,19 +702,147 @@
   .add-film-btn:hover { background:rgba(232,0,29,0.1); border-color:var(--red); }
   /* PHOTOGRAPHY */
   #photography { background:var(--navy-mid); }
-  .photo-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; align-items:start; }
-  .photo-item { position:relative; border-radius:12px; overflow:hidden; background:var(--navy-light); cursor:none; transition:transform 0.4s cubic-bezier(0.16,1,0.3,1); }
-  .photo-item:nth-child(4n+1) { grid-row:span 2; }
-  .photo-item:hover { transform:scale(1.02); z-index:2; }
-  .photo-inner { width:100%; height:100%; min-height:200px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
-  .photo-inner img { width:100%; height:100%; object-fit:cover; }
-  .photo-inner::after { content:""; position:absolute; inset:0; background:linear-gradient(to top,rgba(10,10,20,0.85) 0%,transparent 60%); opacity:0; transition:opacity 0.3s; }
+
+  /* ── Album grid — 2 columns, masonry-like with featured sizing ── */
+  .photo-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    align-items: start;
+  }
+  .photo-item {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--navy-light);
+    cursor: pointer;
+    transition: transform 0.4s cubic-bezier(0.16,1,0.3,1), box-shadow 0.4s;
+  }
+  /* Every 5th item spans both columns for visual rhythm */
+  .photo-item:nth-child(5n+1) { grid-column: span 2; }
+  .photo-item:hover { transform: scale(1.015); z-index: 2; box-shadow: 0 16px 48px rgba(0,0,0,0.55); }
+
+  .photo-inner {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    min-height: 360px;
+  }
+  /* Featured (spanning) items are taller */
+  .photo-item:nth-child(5n+1) .photo-inner { min-height: 520px; }
+
+  .photo-inner img { width:100%; height:100%; object-fit:cover; display:block; transition: transform 0.5s cubic-bezier(0.16,1,0.3,1); }
+  .photo-item:hover .photo-inner img { transform: scale(1.04); }
+  .photo-inner::after { content:""; position:absolute; inset:0; background:linear-gradient(to top,rgba(10,10,20,0.82) 0%,transparent 55%); opacity:0; transition:opacity 0.3s; }
   .photo-item:hover .photo-inner::after { opacity:1; }
-  .photo-caption { position:absolute; bottom:0; left:0; right:0; padding:14px; z-index:2; transform:translateY(6px); opacity:0; transition:all 0.3s; font-size:0.8rem; color:var(--off-white); }
-  .photo-item:hover .photo-caption { transform:translateY(0); opacity:1; }
-  .add-photo-btn { display:none; border-radius:12px; background:rgba(232,0,29,0.05); border:2px dashed rgba(232,0,29,0.3); align-items:center; justify-content:center; flex-direction:column; gap:10px; cursor:pointer; transition:all 0.2s; min-height:200px; }
+
+  .photo-caption {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 20px 20px 18px;
+    z-index: 2;
+    transform: translateY(8px);
+    opacity: 0;
+    transition: all 0.3s;
+    font-size: 0.85rem;
+    color: var(--off-white);
+    font-weight: 500;
+  }
+  .photo-item:hover .photo-caption { transform: translateY(0); opacity: 1; }
+
+  /* Expand icon badge */
+  .photo-expand-icon {
+    position: absolute;
+    top: 14px; right: 14px;
+    width: 34px; height: 34px;
+    background: rgba(0,0,0,0.55);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 3;
+  }
+  .photo-item:hover .photo-expand-icon { opacity: 1; }
+
+  .add-photo-btn { display:none; border-radius:16px; background:rgba(232,0,29,0.05); border:2px dashed rgba(232,0,29,0.3); align-items:center; justify-content:center; flex-direction:column; gap:10px; cursor:pointer; transition:all 0.2s; min-height:360px; }
   body.admin-mode .add-photo-btn { display:flex; }
   .add-photo-btn:hover { background:rgba(232,0,29,0.1); border-color:var(--red); }
+
+  /* ── Photo Lightbox ── */
+  #photo-lightbox {
+    display: none;
+    position: fixed; inset: 0;
+    z-index: 850;
+    background: rgba(0,0,0,0.96);
+    backdrop-filter: blur(20px);
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  #photo-lightbox.open { display: flex; opacity: 1; }
+  .lb-close {
+    position: absolute; top: 20px; right: 20px;
+    width: 40px; height: 40px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 50%;
+    color: white; font-size: 1.1rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s; z-index: 10;
+  }
+  .lb-close:hover { background: var(--red); border-color: var(--red); }
+  .lb-img-wrap {
+    position: relative;
+    max-width: 90vw;
+    max-height: 88vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .lb-img-wrap img {
+    max-width: 90vw;
+    max-height: 84vh;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.8);
+    display: block;
+  }
+  .lb-caption {
+    position: absolute;
+    bottom: -36px; left: 0; right: 0;
+    text-align: center;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 0.04em;
+  }
+  .lb-nav {
+    position: absolute;
+    top: 50%; transform: translateY(-50%);
+    width: 46px; height: 46px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 50%;
+    color: white; font-size: 1.1rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s, border-color 0.2s;
+    z-index: 10;
+  }
+  .lb-nav:hover { background: var(--red); border-color: var(--red); }
+  .lb-prev { left: -62px; }
+  .lb-next { right: -62px; }
+  .lb-counter {
+    position: absolute;
+    top: 20px; left: 50%; transform: translateX(-50%);
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.08em;
+  }
   /* ADMIN PANEL */
   #admin-panel { display:none; position:fixed; inset:0; z-index:600; background:rgba(0,0,0,0.9); backdrop-filter:blur(12px); align-items:center; justify-content:center; }
   #admin-panel.open { display:flex; }
@@ -749,8 +877,11 @@
   .login-error { font-size:0.82rem; color:var(--red-light); margin-top:12px; display:none; }
   @media (max-width:768px) {
     .film-grid { grid-template-columns:1fr 1fr; }
-    .photo-grid { grid-template-columns:1fr 1fr; }
-    .photo-item:nth-child(4n+1) { grid-row:auto; }
+    .photo-grid { grid-template-columns:1fr; }
+    .photo-item:nth-child(5n+1) { grid-column: span 1; }
+    .photo-item:nth-child(5n+1) .photo-inner { min-height: 320px; }
+    .lb-prev { left: 8px; }
+    .lb-next { right: 8px; }
   }
 
   /* INLINE EDIT (admin mode) */
@@ -1459,24 +1590,28 @@
   <div class="section-label reveal">Photography</div>
   <h2 class="section-title reveal" contenteditable="false" data-editable data-persist-id="photo-title">Frames I&#39;ve<br>chosen to keep.</h2>
   <div class="photo-grid" id="photoGrid">
-    <div class="photo-item reveal" data-caption="Street / Manila, 2023">
+    <div class="photo-item reveal" data-caption="Street / Manila, 2023" onclick="openLightbox(this)">
       <button class="admin-edit-btn" onclick="editPhoto(this.closest('.photo-item'),event)">&#x270E; Edit</button>
-      <div class="photo-inner" style="min-height:260px;background:linear-gradient(135deg,#1a0309,#3b0714,#1e0b1b);"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1" opacity="0.25" style="position:relative;z-index:1;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="white"/><polyline points="21,15 16,10 5,21"/></svg></div>
+      <div class="photo-inner" style="min-height:360px;background:linear-gradient(135deg,#1a0309,#3b0714,#1e0b1b);"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1" opacity="0.25" style="position:relative;z-index:1;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="white"/><polyline points="21,15 16,10 5,21"/></svg></div>
+      <div class="photo-expand-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polyline points="15,3 21,3 21,9"/><polyline points="9,21 3,21 3,15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div>
       <div class="photo-caption">Street / Manila, 2023</div>
     </div>
-    <div class="photo-item reveal" data-caption="Portrait Series, 2023">
+    <div class="photo-item reveal" data-caption="Portrait Series, 2023" onclick="openLightbox(this)">
       <button class="admin-edit-btn" onclick="editPhoto(this.closest('.photo-item'),event)">&#x270E; Edit</button>
-      <div class="photo-inner" style="min-height:200px;background:linear-gradient(135deg,#1a0a0a,#3d1010,#2a0808);"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1" opacity="0.25" style="position:relative;z-index:1;"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+      <div class="photo-inner" style="min-height:360px;background:linear-gradient(135deg,#1a0a0a,#3d1010,#2a0808);"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1" opacity="0.25" style="position:relative;z-index:1;"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+      <div class="photo-expand-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polyline points="15,3 21,3 21,9"/><polyline points="9,21 3,21 3,15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div>
       <div class="photo-caption">Portrait Series, 2023</div>
     </div>
-    <div class="photo-item reveal" data-caption="Urban Architecture, 2022">
+    <div class="photo-item reveal" data-caption="Urban Architecture, 2022" onclick="openLightbox(this)">
       <button class="admin-edit-btn" onclick="editPhoto(this.closest('.photo-item'),event)">&#x270E; Edit</button>
-      <div class="photo-inner" style="min-height:200px;background:linear-gradient(135deg,#1a0000,#400010,#1e0a0a);"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1" opacity="0.25" style="position:relative;z-index:1;"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div>
+      <div class="photo-inner" style="min-height:360px;background:linear-gradient(135deg,#1a0000,#400010,#1e0a0a);"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1" opacity="0.25" style="position:relative;z-index:1;"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div>
+      <div class="photo-expand-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polyline points="15,3 21,3 21,9"/><polyline points="9,21 3,21 3,15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div>
       <div class="photo-caption">Urban Architecture, 2022</div>
     </div>
-    <div class="photo-item reveal" data-caption="Light Study, 2022">
+    <div class="photo-item reveal" data-caption="Light Study, 2022" onclick="openLightbox(this)">
       <button class="admin-edit-btn" onclick="editPhoto(this.closest('.photo-item'),event)">&#x270E; Edit</button>
-      <div class="photo-inner" style="min-height:200px;background:linear-gradient(135deg,#1a0a12,#35081a,#1a0510);"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1" opacity="0.25" style="position:relative;z-index:1;"><circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/></svg></div>
+      <div class="photo-inner" style="min-height:360px;background:linear-gradient(135deg,#1a0a12,#35081a,#1a0510);"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1" opacity="0.25" style="position:relative;z-index:1;"><circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/></svg></div>
+      <div class="photo-expand-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polyline points="15,3 21,3 21,9"/><polyline points="9,21 3,21 3,15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div>
       <div class="photo-caption">Light Study, 2022</div>
     </div>
     <button class="add-photo-btn" onclick="openAddPhoto()">
@@ -1485,6 +1620,18 @@
     </button>
   </div>
 </section>
+
+<!-- PHOTO LIGHTBOX -->
+<div id="photo-lightbox">
+  <button class="lb-close" onclick="closeLightbox()">&#x2715;</button>
+  <div class="lb-counter" id="lb-counter"></div>
+  <div class="lb-img-wrap">
+    <button class="lb-nav lb-prev" onclick="lbNav(-1)">&#8592;</button>
+    <img id="lb-img" src="" alt="">
+    <div class="lb-caption" id="lb-caption"></div>
+    <button class="lb-nav lb-next" onclick="lbNav(1)">&#8594;</button>
+  </div>
+</div>
 
 <!-- EXPERIENCE -->
 <section id="experience">
@@ -2024,21 +2171,27 @@ function openAddPhoto() {
 }
 function savePhoto(data) {
   const grads = ['linear-gradient(135deg,#1a0309,#3b0714)','linear-gradient(135deg,#1a0a0a,#3d1010)','linear-gradient(135deg,#0f0a1a,#200a2a)','linear-gradient(135deg,#1a0a12,#35081a)'];
+  const expandIcon = '<div class="photo-expand-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polyline points="15,3 21,3 21,9"/><polyline points="9,21 3,21 3,15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div>';
   if (currentEditTarget) {
     const item = currentEditTarget; item.dataset.caption = data.caption;
     item.querySelector('.photo-caption').textContent = data.caption;
+    if (!item.onclick) item.setAttribute('onclick','openLightbox(this)');
+    if (!item.querySelector('.photo-expand-icon')) item.insertAdjacentHTML('beforeend', expandIcon);
     if (data.imageUrl) { const inner = item.querySelector('.photo-inner'); inner.style.background = 'none'; inner.innerHTML = '<img src="' + data.imageUrl + '" alt="' + data.caption + '" style="width:100%;height:100%;object-fit:cover;">'; }
   } else {
     const bg = grads[Math.floor(Math.random()*grads.length)];
     const item = document.createElement('div');
     item.className = 'photo-item reveal'; item.dataset.caption = data.caption;
+    item.setAttribute('onclick','openLightbox(this)');
     const imgContent = data.imageUrl
       ? '<img src="' + data.imageUrl + '" alt="' + data.caption + '" style="width:100%;height:100%;object-fit:cover;">'
       : '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1" opacity="0.25"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>';
     item.innerHTML = '<button class="admin-edit-btn" onclick="editPhoto(this.closest(\'.photo-item\'),event)">&#x270E; Edit</button>'
-      + '<div class="photo-inner" style="min-height:200px;background:' + bg + ';">' + imgContent + '</div>'
+      + '<div class="photo-inner" style="min-height:360px;background:' + bg + ';">' + imgContent + '</div>'
+      + expandIcon
       + '<div class="photo-caption">' + data.caption + '</div>';
-    document.getElementById('photoGrid').insertBefore(item, document.querySelector('.add-photo-btn'));
+    const pg = document.getElementById('photoGrid');
+    pg.insertBefore(item, pg.querySelector('.add-photo-btn'));
     observer.observe(item);
   }
   rebindCursor();
@@ -2898,6 +3051,7 @@ function applyPageData(saved) {
     const addPhotoBtn = photoGrid ? photoGrid.querySelector('.add-photo-btn') : null;
     if (photoGrid) photoGrid.querySelectorAll('.photo-item').forEach(p => p.remove());
     const photoGrads = ['linear-gradient(135deg,#1a0309,#3b0714)','linear-gradient(135deg,#1a0a0a,#3d1010)','linear-gradient(135deg,#0f0a1a,#200a2a)','linear-gradient(135deg,#1a0a12,#35081a)'];
+    const expandIcon = '<div class="photo-expand-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polyline points="15,3 21,3 21,9"/><polyline points="9,21 3,21 3,15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div>';
     saved.photos.forEach((p, idx) => {
       const bg = photoGrads[idx % photoGrads.length];
       const imgContent = p.imageUrl
@@ -2906,8 +3060,10 @@ function applyPageData(saved) {
       const item = document.createElement('div');
       item.className = 'photo-item reveal';
       item.dataset.caption = p.caption || '';
+      item.setAttribute('onclick','openLightbox(this)');
       item.innerHTML = '<button class="admin-edit-btn" onclick="editPhoto(this.closest(\'.photo-item\'),event)">&#x270E; Edit</button>'
-        + '<div class="photo-inner" style="min-height:260px;background:' + (p.imageUrl ? 'none' : bg) + ';">' + imgContent + '</div>'
+        + '<div class="photo-inner" style="min-height:360px;background:' + (p.imageUrl ? 'none' : bg) + ';">' + imgContent + '</div>'
+        + expandIcon
         + '<div class="photo-caption">' + (p.caption||'') + '</div>';
       if (photoGrid) photoGrid.insertBefore(item, addPhotoBtn || null);
       observer.observe(item);
@@ -3090,6 +3246,58 @@ window.applyClients = async function() {
 // ── BOOT ─────────────────────────────────────────────────────────────────
 injectAdminSaveBar();
 loadFromSupabase(); // async — applies saved content as soon as Supabase responds
+
+
+// ── PHOTO LIGHTBOX ───────────────────────────────────────────────────────
+let _lbItems = [], _lbIndex = 0;
+
+function openLightbox(item) {
+  if (isAdmin) return; // in admin mode, click opens edit panel instead
+  _lbItems = Array.from(document.querySelectorAll('#photoGrid .photo-item'));
+  _lbIndex = _lbItems.indexOf(item);
+  _lbShow();
+  const lb = document.getElementById('photo-lightbox');
+  lb.style.display = 'flex';
+  requestAnimationFrame(() => lb.classList.add('open'));
+  document.body.style.overflow = 'hidden';
+  document.addEventListener('keydown', _lbKeyHandler);
+}
+
+function _lbShow() {
+  const item = _lbItems[_lbIndex];
+  const img  = item.querySelector('img');
+  const lb   = document.getElementById('lb-img');
+  const cap  = document.getElementById('lb-caption');
+  const ctr  = document.getElementById('lb-counter');
+  lb.src = img ? img.src : '';
+  lb.style.display = img ? 'block' : 'none';
+  cap.textContent  = item.dataset.caption || '';
+  ctr.textContent  = (_lbIndex + 1) + ' / ' + _lbItems.length;
+}
+
+function lbNav(dir) {
+  _lbIndex = (_lbIndex + dir + _lbItems.length) % _lbItems.length;
+  _lbShow();
+}
+
+function closeLightbox() {
+  const lb = document.getElementById('photo-lightbox');
+  lb.classList.remove('open');
+  setTimeout(() => { lb.style.display = 'none'; document.getElementById('lb-img').src = ''; }, 300);
+  document.body.style.overflow = '';
+  document.removeEventListener('keydown', _lbKeyHandler);
+}
+
+function _lbKeyHandler(e) {
+  if (e.key === 'ArrowRight') lbNav(1);
+  else if (e.key === 'ArrowLeft') lbNav(-1);
+  else if (e.key === 'Escape') closeLightbox();
+}
+
+// Close on backdrop click
+document.getElementById('photo-lightbox').addEventListener('click', function(e) {
+  if (e.target === this) closeLightbox();
+});
 
 </script>
 
